@@ -84,14 +84,14 @@ public class Server2Terminal {
         initEnvriment();
         //添加JVM钩子
         addHook();
-
+        System.setProperty("org.jboss.netty.epollBugWorkaround", "true");//避免CPU使用率达到100%
         //启动与终端对接的服务端  因为是阻塞运行 需要开线程启动
         new Thread(new Runnable() {
 
             public void run() {
                 // TODO Auto-generated method stub
                 System.out.println("启动与终端对接的服务端.............");
-                bindAddress(config(),9811);
+                bindAddress(config(),8899);
             }
         }).start();
         //启动与前置对接的客户端  因为是阻塞运行 需要开线程启动
@@ -100,7 +100,7 @@ public class Server2Terminal {
             public void run() {
                 try {
                     System.out.println("启动与前置对接的客户端.............");
-                    Client2Master.bindAddress2Client(Client2Master.configClient(),"127.0.0.1",8888);
+                    Client2Master.bindAddress2Client(Client2Master.configClient(),"localhost",8899);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

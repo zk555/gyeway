@@ -8,8 +8,16 @@ import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
 
+/**
+ * 消息处理handler :  把消息处理后组装成object 缓存到容器中
+ */
 public class SocketInHandler  extends ChannelInboundHandlerAdapter {
 
+    /**
+     * 接入网关后处理请求信息
+     * @param ctx
+     * @throws Exception
+     */
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
