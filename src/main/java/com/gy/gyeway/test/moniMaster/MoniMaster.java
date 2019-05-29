@@ -1,5 +1,6 @@
 package com.gy.gyeway.test.moniMaster;
 
+import com.gy.gyeway.utils.MixAll;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -8,12 +9,19 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.apache.curator.RetryPolicy;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.imps.CuratorFrameworkState;
+import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.apache.zookeeper.CreateMode;
 
 /**
  * 模拟 前置
  */
 public class MoniMaster {
     public static void main(String[] args) {
+        String zkAddr = "192.168.18.27:2181,192.168.18.27:2182,192.168.18.27:2183";
         EventLoopGroup boss=new NioEventLoopGroup();
         EventLoopGroup work=new NioEventLoopGroup();
         //创建ServerBootstrap辅助类  客户端是Bootstrap辅助类 注意区分
@@ -33,18 +41,54 @@ public class MoniMaster {
                 sc.pipeline().addLast(new MoniMasterHandler());
             }
         });
-        ChannelFuture channelFuture;
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                ChannelFuture channelFuture;
+                try {
+                    channelFuture = bootstrap.bind(8888).sync();
+                    System.out.println("模拟前置已启动！！port = " +8888);
+
+                    channelFuture.channel().closeFuture().sync();
+
+                    boss.shutdownGracefully();
+                    work.shutdownGracefully();
+                } catch (InterruptedException e) {
+
+                    e.printStackTrace();
+                }
+            }
+        },"moniQZThread").start();
+
+
+
+
+
+        RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 10);
+        CuratorFramework cf = CuratorFrameworkFactory.builder()
+                .connectString(zkAddr)
+                .sessionTimeoutMs(6000)
+                .retryPolicy(retryPolicy)
+                .build();
+        //3 开启连接
+        cf.start();
+        while(cf.getState() != CuratorFrameworkState.STARTED){
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("zk连接成功。。。。。");
+
+
         try {
-            channelFuture = bootstrap.bind(8888).sync();
-            System.out.println("模拟前置已启动！！port = " +8888);
-
-            channelFuture.channel().closeFuture().sync();
-
-            boss.shutdownGracefully();
-            work.shutdownGracefully();
-        } catch (InterruptedException e) {
-
-            e.printStackTrace();
+            String addr = MixAll.linuxLocalIP();
+            cf.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath("/iotGate2Master/"+addr,addr.getBytes());
+            System.out.println("********zookeeper注册前置信息成功！********");
+        } catch (Exception e) {
+            System.err.println("zookeeper注册前置信息失败");
         }
     }
 }
