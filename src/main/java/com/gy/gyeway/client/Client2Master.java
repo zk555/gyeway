@@ -6,6 +6,7 @@ import com.gy.gyeway.client.handler.Client2MasterInHandler;
 import com.gy.gyeway.codec.Gate2MasterDecoder;
 import com.gy.gyeway.codec.Gate2MasterEncoder;
 import com.gy.gyeway.utils.CommonUtil;
+import com.gy.gyeway.utils.StringUtils;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -15,6 +16,8 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 import java.net.Inet4Address;
+import java.net.InetSocketAddress;
+
 /**
  * class_name: Client2Master
  * package: com.gy.gyeway.client
@@ -67,8 +70,10 @@ public class Client2Master {
 //		byte[] byteMsg = StringUtils.decodeHex(msg);
         Channel channel  =  channelFuture.channel();
         //获取网关本地地址
-        String LocalIpAddress = channel.localAddress().toString().replaceAll("\\/", "");
-        channelFuture.channel().writeAndFlush(loginGateHeader(LocalIpAddress));
+        InetSocketAddress insocket = (InetSocketAddress)channel.remoteAddress();
+        String ipAddress = StringUtils.formatIpAddress(insocket.getHostName(), String.valueOf(insocket.getPort()));
+        channelFuture.channel().writeAndFlush(loginGateHeader(ipAddress));
+
 
         channelFuture.channel().closeFuture().sync();
     }
@@ -102,12 +107,12 @@ public class Client2Master {
             headBuf.writeInt32(0);
         }
 
-        byte[] bs = Inet4Address.getByName(ipAddress.split(":")[0]).getAddress();//127.0.0.1 -->  [127, 0, 0, 1]
+        byte[] bs = Inet4Address.getByName(ipAddress.split("|")[0]).getAddress();//127.0.0.1 -->  [127, 0, 0, 1]
         headBuf.writeInt8(bs[0]);
         headBuf.writeInt8(bs[1]);
         headBuf.writeInt8(bs[2]);
         headBuf.writeInt8(bs[3]);
-        headBuf.writeInt16(Integer.parseInt(ipAddress.split(":")[1]));//port  两个字节表示端口号
+        headBuf.writeInt16(Integer.parseInt(ipAddress.split("|")[1]));//port  两个字节表示端口号
         headBuf.writeInt32(count);//count  4个字节的count
         out.writeBytes(headBuf.getDataBuffer());
         return out;

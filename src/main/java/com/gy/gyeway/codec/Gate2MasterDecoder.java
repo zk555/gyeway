@@ -7,6 +7,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 
+import java.net.Inet6Address;
+import java.net.UnknownHostException;
 import java.util.List;
 
 /**
@@ -46,18 +48,40 @@ public class Gate2MasterDecoder  extends ByteToMessageDecoder {
                     int socketDataLen = readLenArea(in);
                     if(in.readableBytes() >= (socketDataLen+25) ){
                         //报文完整
-                        in.skipBytes(15);//直接将读指针跳到终端ip处
+                        in.skipBytes(1);
+                        boolean isIPV4 = true;
+                        {
+                            int sig = in.readByte()&0xFF;
+                            int type = sig >> 7 & 1;
+                            isIPV4 = type == 0	? true : false;
+                        }
                         clientIpAddress = new StringBuilder();
-                        clientIpAddress.append(in.readByte()&0xFF);  //ip地址需要转成10进制数
-                        clientIpAddress.append(".");
-                        clientIpAddress.append(in.readByte()&0xFF);
-                        clientIpAddress.append(".");
-                        clientIpAddress.append(in.readByte()&0xFF);
-                        clientIpAddress.append(".");
-                        clientIpAddress.append(in.readByte()&0xFF);
-                        clientIpAddress.append(":");
-                        clientIpAddress.append(readLenArea(in));
+                        if(isIPV4){
+                            in.skipBytes(13);
+                            clientIpAddress.append(in.readByte()&0xFF);  //ip地址需要转成10进制数
+                            clientIpAddress.append(".");
+                            clientIpAddress.append(in.readByte()&0xFF);
+                            clientIpAddress.append(".");
+                            clientIpAddress.append(in.readByte()&0xFF);
+                            clientIpAddress.append(".");
+                            clientIpAddress.append(in.readByte()&0xFF);
 
+
+                        }else{
+                            in.skipBytes(1);
+                            byte[] dataTemp = new byte[16];
+                            for(int i = 0 ; i < 16 ;i++){
+                                dataTemp[i] = in.readByte();
+                            }
+                            try {
+                                clientIpAddress.append(Inet6Address.getByAddress(dataTemp).getHostAddress());
+                            } catch (UnknownHostException e) {
+                                e.printStackTrace();
+                                return null;
+                            }
+                        }
+                        clientIpAddress.append("|");
+                        clientIpAddress.append(readLenArea(in));
                         return clientIpAddress.toString();
                     }else{
                         //报文不完整

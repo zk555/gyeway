@@ -3,10 +3,13 @@ package com.gy.gyeway.server.handler;
 import com.gy.gyeway.base.cache.ClientChannelCache;
 import com.gy.gyeway.base.cachequeue.CacheQueue;
 import com.gy.gyeway.base.domain.ChannelData;
+import com.gy.gyeway.utils.StringUtils;
 import io.netty.channel.*;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
+
+import java.net.InetSocketAddress;
 
 /**
  * 消息处理handler :  把消息处理后组装成object 缓存到容器中
@@ -22,7 +25,9 @@ public class SocketInHandler  extends ChannelInboundHandlerAdapter {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
         Channel channel = ctx.channel();
-        String clientIpAddress = ctx.channel().remoteAddress().toString().replaceAll("\\/", "");// clientIpAddress = "127.0.0.1:53956"
+        InetSocketAddress insocket = (InetSocketAddress)channel.remoteAddress();
+        String ipAddress = StringUtils.formatIpAddress(insocket.getHostName(), String.valueOf(insocket.getPort()));
+        String clientIpAddress = ipAddress;// ctx.channel().remoteAddress().toString().replaceAll("\\/", "");// clientIpAddress = "127.0.0.1:53956"
         Integer count = CacheQueue.ipCountRelationCache.get(clientIpAddress);
         if(count != null && count.intValue() < 10000){
             CacheQueue.ipCountRelationCache.put(clientIpAddress, count+1);

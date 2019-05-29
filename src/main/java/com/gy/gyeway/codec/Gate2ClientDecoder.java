@@ -3,10 +3,13 @@ package com.gy.gyeway.codec;
 import com.gy.gyeway.base.constant.ConstantValue;
 import com.gy.gyeway.base.domain.ChannelData;
 import com.gy.gyeway.base.domain.SocketData;
+import com.gy.gyeway.utils.StringUtils;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 
+import java.net.InetSocketAddress;
 import java.util.List;
 
 /**
@@ -53,8 +56,10 @@ public class Gate2ClientDecoder  extends ByteToMessageDecoder {
                             //当报文是以0x16结尾的，读取报文体
                             in.resetReaderIndex();
                             content = readContent(in,contLength-2);
-
-                            String clientIpAddress = ctx.channel().remoteAddress().toString().replaceAll("\\/", "");
+                            Channel channel = ctx.channel();
+                            InetSocketAddress insocket = (InetSocketAddress)channel.remoteAddress();
+                            String ipAddress = StringUtils.formatIpAddress(insocket.getHostName(), String.valueOf(insocket.getPort()));
+                            String clientIpAddress = ipAddress;
                             SocketData data = new SocketData(header, lenArea, content, end);
                             ChannelData channelData =  new ChannelData(clientIpAddress, data);
                             out.add(channelData);
