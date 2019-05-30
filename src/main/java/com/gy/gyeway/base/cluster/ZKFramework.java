@@ -1,5 +1,6 @@
 package com.gy.gyeway.base.cluster;
 
+import com.gy.gyeway.GyewayApplication;
 import com.gy.gyeway.base.domain.LocalCache;
 import com.gy.gyeway.concurrent.BasicThreadPoolTaskExecutor;
 import com.gy.gyeway.concurrent.ThreadFactoryImpl;
@@ -88,9 +89,9 @@ public class ZKFramework {
                         System.out.println("CHILD_ADDED :" + event.getData().getPath());
                         try {
                             String val = new String(event.getData().getData());
-                            Server2Terminal.masterAddrs.add(val);
+                            GyewayApplication.masterAddrs.add(val);
                             addNode2Cache(val);
-                            Server2Terminal.locks.countDown();
+                            GyewayApplication.locks.countDown();
                         } catch (Exception e) {
                             // TODO: handle exception
                             e.printStackTrace();
