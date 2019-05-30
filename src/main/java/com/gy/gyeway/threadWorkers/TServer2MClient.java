@@ -2,6 +2,7 @@ package com.gy.gyeway.threadWorkers;
 
 import com.gy.gyeway.base.cachequeue.CacheQueue;
 import com.gy.gyeway.base.domain.ChannelData;
+import com.gy.gyeway.base.domain.SocketData;
 import io.netty.channel.Channel;
 
 import java.util.concurrent.LinkedBlockingQueue;
@@ -22,7 +23,9 @@ public class TServer2MClient  implements Runnable{
     }
 
 
-
+    /**
+     * up2MasterQueue 中获取终端发送的报文 ，处理后再通过缓存Channel写出去
+     */
     public void run() {
         while(true){
             ChannelData channelData = null;

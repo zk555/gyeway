@@ -8,6 +8,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author  zk
  */
 public class RPCCache {
+    /**
+     * class_name: RPCCache
+     * package: com.gy.gyeway.base.cache
+     * describe: TODO ：rpc暴露方法的容器 ， key : className ,value : class
+     * creat_user: zhaokai@
+     * creat_date: 2019/5/30
+     * creat_time: 18:40
+     **/
     private static ConcurrentHashMap<String, Class<?>> rpcServices;
 
     private RPCCache() {

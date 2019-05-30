@@ -1,5 +1,6 @@
 package com.gy.gyeway.rpc.rpcService;
 
+import com.gy.gyeway.rpc.annotation.RPCService;
 import com.gy.gyeway.rpc.dataBridge.ResponseData;
 
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.List;
  * creat_date: 2019/5/30
  * creat_time: 17:43
  **/
+@RPCService
 public class RPCExportServiceImpl  implements RPCExportService{
 
     @Override

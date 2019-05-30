@@ -1,4 +1,4 @@
-package gate.util;
+package com.gy.gyeway.utils;
 
 
 import com.alibaba.fastjson.JSON;

@@ -18,6 +18,9 @@ import io.netty.handler.timeout.IdleStateHandler;
 
 import java.net.InetSocketAddress;
 
+/**
+ * rpc远程服务handler
+ */
 public class RemoteServer {
     private final ServerBootstrap bootstrap;
     private final EventLoopGroup eventLoopGroupWorker;
@@ -114,7 +117,14 @@ public class RemoteServer {
             ctx.channel().close();
         }
     }
-
+    /**
+     * class_name: RemoteServer
+     * package: com.gy.gyeway.remoting
+     * describe: TODO :调用本地方法，然后写回
+     * creat_user: zhaokai@
+     * creat_date: 2019/5/30
+     * creat_time: 18:57
+     **/
     class NettyServerHandler extends SimpleChannelInboundHandler<RequestData> {
 
         @Override

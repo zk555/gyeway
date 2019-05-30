@@ -30,15 +30,10 @@ public class MoniMasterHandler  extends ChannelInboundHandlerAdapter {
                 //初始化开始时间
                 CountHelper.masterRecieveStartTime=System.currentTimeMillis();
             }
-
-
             System.out.println("接收总数："+pos+"模拟前置收到数据："+code);
-
             if(pos == CountHelper.ThreadNum ){
                 //计算结束时间
-
                 System.out.println("接收数据总花费时间为:"+(System.currentTimeMillis()-CountHelper.masterRecieveStartTime)+"毫秒");
-
             }
             if(pos == (CountHelper.ThreadNum+1) ){
                 //第二次运行起始时间
