@@ -31,7 +31,7 @@ public class CacheQueue {
     /**
      * Server4Terminel接收到消息之后 将消息存放到up2MasterQueue队列中
      */
-    private static LinkedBlockingQueue<ChannelData> up2MasterQueue;
+    public static LinkedBlockingQueue<ChannelData> up2MasterQueue;
 
     static{
 

@@ -6,6 +6,8 @@ import com.gy.gyeway.base.cluster.ZKFramework;
 import com.gy.gyeway.client.Client2Master;
 import com.gy.gyeway.codec.Gate2ClientDecoder;
 import com.gy.gyeway.codec.Gate2ClientEncoder;
+import com.gy.gyeway.rpc.RPCProcessor.RPCProcessor;
+import com.gy.gyeway.rpc.RPCProcessor.RPCProcessorImpl;
 import com.gy.gyeway.server.handler.SocketInHandler;
 import com.gy.gyeway.threadWorkers.TServer2MClient;
 import com.gy.gyeway.utils.CommonUtil;
@@ -87,6 +89,7 @@ public class Server2Terminal {
     public static int gatePort = 9811;
     public static String zkAddr = null;
     public static List<String> masterAddrs = new ArrayList<>(1);//存储客户端IP
+    private static RPCProcessor processor = new RPCProcessorImpl();
     public static CountDownLatch locks = new CountDownLatch(1);
     public static void main(String[] args) {
         boolean iscluster = suitCommonLine(args);
@@ -124,7 +127,11 @@ public class Server2Terminal {
                 }
             },"gate2masterThread").start();
         }
-
+        try {
+            processor.exportService();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
 
 
