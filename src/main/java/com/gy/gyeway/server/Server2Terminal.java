@@ -86,17 +86,19 @@ public class Server2Terminal {
     public static CommandLine commandLine = null;
     public static int gatePort = 9811;
     public static String zkAddr = null;
-    public static List<String> masterAddrs = new ArrayList<>(0);
+    public static List<String> masterAddrs = new ArrayList<>(1);//存储客户端IP
     public static CountDownLatch locks = new CountDownLatch(1);
     public static void main(String[] args) {
-        suitCommonLine(args);
+        boolean iscluster = suitCommonLine(args);
         initEnvriment();
         addHook();
         System.setProperty("org.jboss.netty.epollBugWorkaround", "true");
-        try {
-            locks.await();
-        } catch (InterruptedException e1) {
-            e1.printStackTrace();
+        if (iscluster) {
+            try {
+                locks.await();
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
         }
         //启动与终端对接的服务端  因为是阻塞运行 需要开线程启动---后续版本中会变动
         new Thread(new Runnable() {
@@ -130,16 +132,17 @@ public class Server2Terminal {
     /**
      * 命令行
      */
-    public static void suitCommonLine(String[] args){
+    public static boolean suitCommonLine(String[] args){
+
         commandLine =
                 CommonUtil.parseCmdLine("iotGateServer", args, CommonUtil.buildCommandlineOptions(new Options()),
                         new PosixParser());
         if (null == commandLine) {
             System.exit(-1);
         }
-
+        boolean isCluster = false;
         if(commandLine.hasOption("c") && commandLine.hasOption("z")){
-
+            isCluster = true;
             zkAddr = commandLine.getOptionValue("z");
             new ZKFramework().start(zkAddr);
         }else if (commandLine.hasOption("m")) {
@@ -158,7 +161,7 @@ public class Server2Terminal {
         if(commandLine.hasOption("p")){
             gatePort = Integer.parseInt(commandLine.getOptionValue("p"));
         }
-
+        return isCluster;
     }
     /**
      * 环境初始化  ---目前最还先不用spring管理
