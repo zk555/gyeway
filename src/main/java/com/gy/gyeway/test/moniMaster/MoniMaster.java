@@ -71,6 +71,7 @@ public class MoniMaster {
                 .sessionTimeoutMs(6000)
                 .retryPolicy(retryPolicy)
                 .build();
+        System.out.println("zk连接中。。。。。。");
         //3 开启连接
         cf.start();
         while(cf.getState() != CuratorFrameworkState.STARTED){

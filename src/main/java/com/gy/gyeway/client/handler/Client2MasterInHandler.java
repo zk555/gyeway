@@ -32,7 +32,7 @@ public class Client2MasterInHandler  extends SimpleChannelInboundHandler<Channel
          * 一旦网关与前置 建立连接 将  该连接通道channel缓存起来，方便Server选择发送上行报文的前置
          */
         String masterIP = ctx.channel().remoteAddress().toString().replaceAll("\\/", "");
-        CacheQueue.masterChannelCache.put(masterIP, ctx.channel());
+        CacheQueue.addMasterChannel2LocalCache(masterIP, ctx.channel());
 
     }
 
@@ -44,7 +44,7 @@ public class Client2MasterInHandler  extends SimpleChannelInboundHandler<Channel
          */
         String masterIP = ctx.channel().remoteAddress().toString().replaceAll("\\/", "");;
 
-        CacheQueue.masterChannelCache.remove(masterIP);
+        CacheQueue.removeMasterChannelFromLocalCache(masterIP);
 
     }
 
