@@ -1,6 +1,8 @@
 package gate.util;
 
 
+import com.alibaba.fastjson.JSON;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.Inet4Address;
@@ -9,6 +11,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -210,5 +213,42 @@ public class MixAll {
         }
 
     }
+    /**
+     * 反序列化指定对象
+     * @param data
+     * @param classOfT
+     * @return
+     *
+     * {
+     * "args":["你好rpc"],
+     * "className":"IOTGateConsole.rpc.service.RPCExportService",
+     * "methodName":"test",
+     * "paramTyps":["java.lang.String"],
+     * "requestNum":"540bbd93-06a6-4b77-a067-fbd8d0d38f2d"
+     * }
+     */
+    public static <T> T decode(final byte[] data, Class<T> classOfT) {
+        final String json = new String(data, Charset.forName("UTF-8"));
+        try {
+            T  t= JSON.parseObject(json, classOfT);
+            return t;
+        } catch (Exception e) {
+            // TODO: handle exception
+            e.printStackTrace();
+        }
+        return null;
+    }
 
+    /**
+     * 序列化指定对象
+     * @param obj
+     * @return
+     */
+    public static byte[] encode(final Object obj) {
+        final String json = JSON.toJSONString(obj, false);;
+        if (json != null) {
+            return json.getBytes(Charset.forName("UTF-8"));
+        }
+        return null;
+    }
 }
