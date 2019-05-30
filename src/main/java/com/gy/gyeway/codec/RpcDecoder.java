@@ -3,6 +3,7 @@ package com.gy.gyeway.codec;
 import com.gy.gyeway.rpc.RPCProcessor.RPCProcessor;
 import com.gy.gyeway.rpc.RPCProcessor.RPCProcessorImpl;
 import com.gy.gyeway.rpc.dataBridge.RequestData;
+import com.gy.gyeway.utils.SerializationUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
@@ -11,10 +12,7 @@ import java.nio.ByteBuffer;
 
 public class RpcDecoder  extends LengthFieldBasedFrameDecoder {
 
-    RPCProcessor processor = new RPCProcessorImpl();
-
-    public RpcDecoder(int maxFrameLength, int lengthFieldOffset, int lengthFieldLength, int lengthAdjustment,
-                      int initialBytesToStrip) {
+    public RpcDecoder() {
         super(10240, 0, 2, 0, 0);
     }
 
@@ -27,12 +25,11 @@ public class RpcDecoder  extends LengthFieldBasedFrameDecoder {
         ByteBuffer byteBuffer = buff.nioBuffer();
         int dataAllLen = byteBuffer.limit();
         int lenArea = byteBuffer.getShort();
-        int dataLen = dataAllLen - lenArea;
+        int dataLen = dataAllLen - 2;
         byte[] contentData = new byte[dataLen];
         byteBuffer.get(contentData);//报头数据
-        RequestData requestData = gate.util.MixAll.decode(contentData, RequestData.class);
-        processor.executeService(requestData);
-        return null;
+        RequestData requestData = SerializationUtil.deserialize(contentData, RequestData.class);
+        return requestData;
     }
 
 

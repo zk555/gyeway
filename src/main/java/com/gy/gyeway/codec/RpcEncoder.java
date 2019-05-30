@@ -9,7 +9,7 @@ public class RpcEncoder extends MessageToByteEncoder<ResponseData> {
 
 @Override
 protected void encode(ChannelHandlerContext ctx, ResponseData msg, ByteBuf out) throws Exception {
-    byte[] data = gate.util.MixAll.encode(msg);
+    byte[] data = SerializationUtil.serialize(msg);
     out.writeShort(data.length);
     out.writeBytes(data);
 

@@ -17,6 +17,7 @@ public class ResponseData implements Serializable{
     private int returnCode = 200;
     private List<Object> data;
     private Throwable erroInfo;
+    private String responseNum;
 
     public int getReturnCode() {
         return returnCode;
@@ -42,5 +43,12 @@ public class ResponseData implements Serializable{
         this.erroInfo = erroInfo;
     }
 
+    public String getResponseNum() {
+        return responseNum;
+    }
+
+    public void setResponseNum(String responseNum) {
+        this.responseNum = responseNum;
+    }
 }
 
