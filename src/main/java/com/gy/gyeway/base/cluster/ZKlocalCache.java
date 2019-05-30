@@ -9,6 +9,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ZKlocalCache implements LocalCache {
 
+    /**
+     *  zk 缓存到 ConcurrentHashMap 中
+     */
     private ConcurrentHashMap<String, String> zknodeCache = null;
 
     private ZKlocalCache(){

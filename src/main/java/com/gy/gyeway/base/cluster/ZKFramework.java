@@ -21,6 +21,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * zk 的 监听类
+ */
 public class ZKFramework {
     ExecutorService basicTaskExecutor = BasicThreadPoolTaskExecutor.getBasicExecutor() ;
 
@@ -32,6 +35,10 @@ public class ZKFramework {
 
     LocalCache zkNodeCache = ZKlocalCache.getInstance();
 
+    /**
+     * 连接zk
+     * @param zkAddr
+     */
     public void init(String zkAddr){
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 10);
         cf = CuratorFrameworkFactory.builder()
@@ -60,7 +67,10 @@ public class ZKFramework {
 
     }
 
-
+    /**
+     * 监听/iotGate2Master 节点
+     * @throws Exception
+     */
     public void zNodeListener() throws Exception{
 
         if(cf.checkExists().forPath(PARENT_PATH) == null){

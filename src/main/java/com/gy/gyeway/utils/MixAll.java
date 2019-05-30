@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
+/**
+ * 网络信息工具类
+ */
 public class MixAll {
     private MixAll(){
         throw new AssertionError();
