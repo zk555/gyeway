@@ -1,7 +1,9 @@
 package com.gy.gyeway.rpc.rpcService;
 
+import com.gy.gyeway.base.cache.ProtocalStrategyCache;
 import com.gy.gyeway.rpc.annotation.RPCService;
 import com.gy.gyeway.rpc.dataBridge.ResponseData;
+import com.gy.gyeway.server.Server2Terminal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,5 +28,42 @@ public class RPCExportServiceImpl  implements RPCExportService{
         ret.setData(list);
         return ret;
     }
+    @Override
+    public ResponseData getAllProtocal() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
+
+    @Override
+    public ResponseData addNewProtocal(List<Integer> str) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public ResponseData updateProtocalByPid(String pid , List<Integer> str) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public ResponseData delProtocalByPid(String port) {
+
+        Server2Terminal server2Terminal = ProtocalStrategyCache.protocalServerCache.get(port);
+        server2Terminal.close();
+        return new ResponseData();
+    }
+
+    @Override
+    public ResponseData startProtocalServiceByPid(String pid) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public ResponseData stopProtocalServiceByPid(String pid) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

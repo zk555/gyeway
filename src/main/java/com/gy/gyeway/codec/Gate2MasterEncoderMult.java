@@ -49,7 +49,7 @@ public class Gate2MasterEncoderMult extends MessageToByteEncoder<ChannelData> {
         headBuf.writeInt16(lenth);//整个真实报文长度
         headBuf.writeInt8(Integer.valueOf(1).byteValue());//type
         if(ipAddress.split("\\|")[0].contains(".")){
-            headBuf.writeInt8(Integer.valueOf(0).byteValue());//protocolType
+            headBuf.writeInt8((byte)data.getpId());//protocolType
         }else{
             headBuf.writeInt8(Integer.valueOf(0+(1<<7)).byteValue());//protocolType
         }
@@ -74,7 +74,7 @@ public class Gate2MasterEncoderMult extends MessageToByteEncoder<ChannelData> {
         headBuf.writeInt16(Integer.parseInt(ipAddress.split("\\|")[1]));//port
         headBuf.writeInt32(count);//count
 
-        ByteBuf outData = Unpooled.directBuffer();
+        ByteBuf outData = CommonUtil.getDirectByteBuf();
         outData.writeBytes(headBuf.getDataBuffer());
         //真实报文
         outData.writeBytes(cliDataBuf);
@@ -88,6 +88,7 @@ public class Gate2MasterEncoderMult extends MessageToByteEncoder<ChannelData> {
         //--------------------------
         out.writeBytes(outData);
         CommonUtil.releaseByteBuf(cliDataBuf);
+        CommonUtil.releaseByteBuf(outData);
     }
 
 }

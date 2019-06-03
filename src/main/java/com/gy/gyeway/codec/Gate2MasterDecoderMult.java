@@ -19,7 +19,7 @@ public class Gate2MasterDecoderMult extends ByteToMessageDecoder {
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
 
-        ByteBuf tmnlDataBuf = CommonUtil.getDirectByteBuf();
+//        ByteBuf tmnlDataBuf = CommonUtil.getDirectByteBuf();
         //解码网关头 获取终端ip
         ChannelData channelData = decodeGateHeader(in);
         if(channelData != null){
@@ -30,46 +30,46 @@ public class Gate2MasterDecoderMult extends ByteToMessageDecoder {
     }
 
 
-    public ChannelData decodeGateHeader(ByteBuf in){
-        if(in.readableBytes()>31){
+    public ChannelData decodeGateHeader(ByteBuf in) {
+        if (in.readableBytes() > 31) {
             //网关头固定为28位  加SocketData至少3位
-            StringBuilder clientIpAddress ;
+            StringBuilder clientIpAddress;
             int beginReader;
 
             while (true) {
                 beginReader = in.readerIndex();
                 int gateHeader = in.readByte() & 0xFF;
-                if(gateHeader == ConstantValue.GATE_HEAD_DATA){
+                if (gateHeader == ConstantValue.GATE_HEAD_DATA) {
                     //1.获取到网关头A8
                     int socketDataLen = in.readShortLE();// readLenArea(in);
-                    if(in.readableBytes() >= (socketDataLen+25) ){
+                    if (in.readableBytes() >= (socketDataLen + 25)) {
                         //报文完整
                         in.skipBytes(1);
                         boolean isIPV4 = true;
                         int pId = -1;
                         {
-                            int sig = in.readByte()&0xFF;
-                            pId = sig & 127 ;
+                            int sig = in.readByte() & 0xFF;
+                            pId = sig & 127;
                             int type = sig >> 7 & 1;
-                            isIPV4 = type == 0	? true : false;
+                            isIPV4 = type == 0 ? true : false;
 
                         }
                         clientIpAddress = new StringBuilder();
-                        if(isIPV4){
+                        if (isIPV4) {
                             in.skipBytes(13);
-                            clientIpAddress.append(in.readByte()&0xFF);  //ip地址需要转成10进制数
+                            clientIpAddress.append(in.readByte() & 0xFF);  //ip地址需要转成10进制数
                             clientIpAddress.append(".");
-                            clientIpAddress.append(in.readByte()&0xFF);
+                            clientIpAddress.append(in.readByte() & 0xFF);
                             clientIpAddress.append(".");
-                            clientIpAddress.append(in.readByte()&0xFF);
+                            clientIpAddress.append(in.readByte() & 0xFF);
                             clientIpAddress.append(".");
-                            clientIpAddress.append(in.readByte()&0xFF);
+                            clientIpAddress.append(in.readByte() & 0xFF);
 
 
-                        }else{
+                        } else {
                             in.skipBytes(1);
                             byte[] dataTemp = new byte[16];
-                            for(int i = 0 ; i < 16 ;i++){
+                            for (int i = 0; i < 16; i++) {
                                 dataTemp[i] = in.readByte();
                             }
                             try {
@@ -85,97 +85,26 @@ public class Gate2MasterDecoderMult extends ByteToMessageDecoder {
                         in.skipBytes(4);//连接次数
                         SocketData data = new SocketData(in.readBytes(socketDataLen));
                         data.setpId(pId);//规约类型
-                        ChannelData channelData =  new ChannelData(data);
+                        ChannelData channelData = new ChannelData(data);
                         channelData.setIpAddress(clientIpAddress.toString());
 
 
                         return channelData;
-                    }else{
+                    } else {
                         //报文不完整
                         in.readerIndex(beginReader);
                         break;
                     }
-                }else{
+                } else {
                     if (in.readableBytes() <= 31) {
 
                         return null;
                     }
-                    continue ;
+                    continue;
                 }
             }
         }
 
-        return null;
-    }
-
-    public ChannelData decodeSocketData(ByteBuf in){
-        if(in.readableBytes()>3){
-            //报文头
-            byte header;
-            //报文长度
-            byte[] lenArea = new  byte[2];
-            //报文体
-            byte[] content;
-            //结尾16
-            byte end = 0x16;
-
-            // 记录包头开始的index
-            int beginReader;
-
-            while (true) {
-                // 获取包头开始的index
-                beginReader = in.readerIndex();
-                // 标记包头开始的index
-                in.markReaderIndex();
-
-
-                header = in.readByte();
-                if (header == ConstantValue.HEAD_DATA) {
-                    //获取到帧头--0x68时
-
-                    //读取长度域
-                    int contLength = readLenArea(in,lenArea);
-                    if( (contLength > 2 ) && (in.readableBytes() > contLength-2)){//首先 长度必须大于长度域本身占的2个字节
-                        //完整帧
-
-                        in.markReaderIndex();
-                        //获取帧尾 判断是否为0X16
-                        in.skipBytes(contLength-2);//当前指针已经不包含长度域的2个字节了
-                        if(isEnd(in)){
-                            //当报文是以0x16结尾的，读取报文体
-                            in.resetReaderIndex();
-                            content = readContent(in,contLength-2);
-
-                            //*********将获得的报文  写入到对象中,并传递到下一个handler
-                            SocketData data = new SocketData(header, lenArea, content, end);
-                            ChannelData channelData =  new ChannelData(data);
-                            return channelData;
-                            //**获取终端硬件ip对应的channel，并通过该channel 发送数据到终端
-
-                        }else{
-                            //当报文不是0x16结尾  丢弃
-                            break;
-                        }
-                    }else{
-                        //不是完整帧
-
-                        in.readerIndex(beginReader);
-                        break;
-                    }
-                }else{
-                    //当没有获取到帧头--0x68时  继续下一次获取,知道获取到帧头为止
-                    if (in.readableBytes() <= 3) {
-                        return null;
-                    }
-                    continue ;
-                }
-
-
-
-
-
-            }
-        }
         return null;
     }
     /**

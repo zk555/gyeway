@@ -1,6 +1,7 @@
 package com.gy.gyeway;
 
 import com.gy.gyeway.base.cache.ClientChannelCache;
+import com.gy.gyeway.base.cache.ProtocalStrategyCache;
 import com.gy.gyeway.base.cachequeue.CacheQueue;
 import com.gy.gyeway.base.cluster.ZKFramework;
 import com.gy.gyeway.client.Client2Master;
@@ -15,6 +16,7 @@ import org.apache.commons.cli.PosixParser;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -29,6 +31,7 @@ public class GyewayApplication {
     public static List<String> masterAddrs = new ArrayList<>(1);
     public static CountDownLatch locks = new CountDownLatch(1);
     private static RPCProcessor processor = new RPCProcessorImpl();
+    private static String[] protocolType;
     public static void main(String[] args) {
         boolean isCluster = suitCommonLine(args);
         initEnvriment();
@@ -41,28 +44,43 @@ public class GyewayApplication {
             }
         }
         //启动与终端对接的服务端  因为是阻塞运行 需要开线程启动---后续版本中会变动
-        new Thread(new Runnable() {
+        for(int i = 0 ; i < protocolType.length ; i++){
+            //启动与终端对接的服务端  因为是阻塞运行 需要开线程启动---后续版本中会变动
+            String pts =  protocolType[i];
+            String pid = pts.split("\\,")[0];//pId
 
-            public void run() {
-                // TODO Auto-generated method stub
-                System.out.println(String.format("网关开始提供终端连接服务，端口号为：%s", gatePort));
-                Server2Terminal.bindAddress(Server2Terminal.config(),gatePort);
-            }
-        },"gateS2tmnlThread").start();
+            new Thread(new Runnable() {
+                public void run() {
+                    // TODO Auto-generated method stub
+
+                    String[] pt = pts.split("\\,");
+                    boolean isBigEndian = "0".equals(pt[1]) ? false : true;
+                    boolean isDataLenthIncludeLenthFieldLenth = "0".equals(pt[5]) ? false : true;
+                    System.out.println(String.format("！！！网关开始提供规约类型为%s的终端连接服务，开启端口号为：%s", Integer.parseInt(pt[0]),Integer.parseInt(pt[7])));
+                    Server2Terminal server2Terminal = new Server2Terminal(pt[0],pt[7]);
+                    server2Terminal.bindAddress(server2Terminal.config(Integer.parseInt(pt[0]),isBigEndian,Integer.parseInt(pt[2]),
+                            Integer.parseInt(pt[3]),Integer.parseInt(pt[4]),isDataLenthIncludeLenthFieldLenth,Integer.parseInt(pt[6])));//1, false, -1, 1, 2, true, 1
+
+                }
+            },"gate2tmnlThread_pid_"+pid).start();
+            ProtocalStrategyCache.protocalStrategyCache.put(pid, pts);
+        }
         //启动与前置对接的客户端  因为是阻塞运行 需要开线程启动
 
-        for (String masterAddr : masterAddrs) {
+        for(int i = 0 ; i < masterAddrs.size() ; i++){
+            String addr = masterAddrs.get(i);
             new Thread(new Runnable() {
-
                 public void run() {
                     try {
-                        Client2Master.bindAddress2Client(Client2Master.configClient(),masterAddr,8888);
-                        System.out.println(String.format("连接前置服务%s成功,前置端口必须为8888", masterAddr));
+                        System.out.println(String.format("！！！前置服务%s连接成功,前置端口必须为8888", addr));
+                        Client2Master.bindAddress2Client(Client2Master.configClient(),addr,8888);
+
                     } catch (Exception e) {
                         e.printStackTrace();
+                        System.err.println("rpc服务发布失败...............");
                     }
                 }
-            },"gate2masterThread").start();
+            },"gate2masterThread_"+i).start();
         }
 
         try {
@@ -100,7 +118,8 @@ public class GyewayApplication {
             System.err.println("启动参数有误，请重新启动");
             System.exit(-1);
         }
-
+        String confFile = commandLine.getOptionValue("f");
+        protocolType = getProtocolType(confFile);
         CommonUtil.gateNum = Integer.parseInt(commandLine.getOptionValue("n"));
         System.out.println(String.format("网关编号为：%s", CommonUtil.gateNum));
         if(commandLine.hasOption("p")){
@@ -134,4 +153,33 @@ public class GyewayApplication {
         }));
     }
 
+    @SuppressWarnings("resource")
+    public static String[] getProtocolType(String filePath){
+        BufferedReader bufferedReader =null;
+        try {
+            bufferedReader = new BufferedReader(new FileReader(new File(filePath)));
+            String str;
+            while((str = bufferedReader.readLine()) != null){
+                if(str.startsWith("protocolType")){
+                    return str.split("\\=")[1].split(";");
+                }
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            System.err.println("配置文件加载失败");
+            System.exit(-1);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }finally {
+            try {
+                bufferedReader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+
+    }
 }

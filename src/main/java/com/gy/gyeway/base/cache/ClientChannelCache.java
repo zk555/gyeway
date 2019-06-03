@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 该缓存类 用于缓存所有连接到网关的终端“ip:channel”信息,并提供了访问缓存的额方法
  */
 public class ClientChannelCache {
-    private  ConcurrentHashMap<String, Channel> cache01 = null;
+//    private  ConcurrentHashMap<String, Channel> cache01 = null;
     //将多个存储数据的ConcurrentHashMap放置于集合之中，由于对集合操作只会存在读取的并发，因此不考虑线程安全问题
     private static List<ConcurrentHashMap<String, Channel>> cacheList = new ArrayList<ConcurrentHashMap<String,Channel>>();
     private static  int scale = 10;

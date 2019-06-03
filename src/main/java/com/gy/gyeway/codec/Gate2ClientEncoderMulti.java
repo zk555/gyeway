@@ -2,8 +2,8 @@ package com.gy.gyeway.codec;
 
 import com.gy.gyeway.base.domain.ChannelData;
 import com.gy.gyeway.base.domain.SocketData;
+import com.gy.gyeway.utils.CommonUtil;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
@@ -17,6 +17,7 @@ public class Gate2ClientEncoderMulti extends MessageToByteEncoder<ChannelData>{
         SocketData data = msg.getSocketData();
 
         out.writeBytes(data.getByteBuf());
+        CommonUtil.releaseByteBuf(data.getByteBuf());
     }
 
 

@@ -52,11 +52,15 @@ public class MoniTerminal {
         //服务端是绑定到服务器某个端口就行，但是客户端是需要连接到指定ip+指定端口的 因此方法不一样
         ChannelFuture channelFuture=bootstrap.connect("localhost", 8899).sync();
         for(int i = 0; i<1 ; i++){
-            byte[] data = StringUtils.decodeHex("681E0081052360541304000024B801000100F007E2071A040F25090000120416");
-
-            channelFuture.channel().writeAndFlush(Unpooled.wrappedBuffer(data));
-
-            Thread.sleep(2000);
+            if(i == 2){
+                byte[] data = StringUtils.decodeHex("681E0081052360541304000024B801000100F007E2071A040F25090000120416");
+                channelFuture.channel().writeAndFlush(Unpooled.wrappedBuffer(data));
+//				Thread.sleep(2000);
+            }else{
+                byte[] data = StringUtils.decodeHex("681E0081052360541304000024B801000100F007E2071A040F25090000120416");
+                channelFuture.channel().writeAndFlush(Unpooled.wrappedBuffer(data));
+//				Thread.sleep(2000);
+            }
         }
         //虽然就算是用 的writeAndFlush方法 但当同时执行多个该方法时，服务端就会出现粘包问题
 //				channelFuture.channel().writeAndFlush(Unpooled.wrappedBuffer("这是客户端的请求信息2$".getBytes()));

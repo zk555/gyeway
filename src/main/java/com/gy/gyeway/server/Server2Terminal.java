@@ -1,5 +1,6 @@
 package com.gy.gyeway.server;
 
+import com.gy.gyeway.base.cache.ProtocalStrategyCache;
 import com.gy.gyeway.codec.Gate2ClientDecoderMulti;
 import com.gy.gyeway.codec.Gate2ClientEncoderMulti;
 import com.gy.gyeway.server.handler.SocketInHandler;
@@ -20,13 +21,26 @@ import java.util.concurrent.TimeUnit;
  * 网关获取报文
  */
 public class Server2Terminal {
-    private static EventLoopGroup boss = new NioEventLoopGroup(1);
-    private static  EventLoopGroup work = new NioEventLoopGroup();
+    /**
+     * 规约编号作为规约服务以及规约策略的唯一标识
+     */
+    private  String  pId;
+    private  String  serverPort;
+    private  EventLoopGroup  boss;
+    private  EventLoopGroup work;
+
+    public Server2Terminal (String pId,String serverPort){
+        this.pId = pId;
+        this.serverPort = serverPort;
+        this.boss = new NioEventLoopGroup(1);
+        this.work = new NioEventLoopGroup();
+    }
     /**
      * 通过引导配置参数
      * @return
      */
-    public static ServerBootstrap config(){
+    public  ServerBootstrap config(int pId, boolean isBigEndian, int beginHexVal, int lengthFieldOffset, int lengthFieldLength,
+                                   boolean isDataLenthIncludeLenthFieldLenth, int exceptDataLenth){
         ServerBootstrap serverBootstrap = new ServerBootstrap();
         serverBootstrap
                 .group(boss, work)
@@ -39,8 +53,8 @@ public class Server2Terminal {
                         //心跳检测,超时时间300秒，指定时间中没有读写操作会触发IdleStateEvent事件
                         ch.pipeline().addLast(new IdleStateHandler(0, 0, 300, TimeUnit.SECONDS));
                         //自定义编解码器  需要在自定义的handler的前面即pipeline链的前端,不能放在自定义handler后面，否则不起作用
-                        ch.pipeline().addLast("decoder",new Gate2ClientDecoderMulti(1, false, 1024, 1, 2, true, 1));//698长度域表示不包含起始符和结束符长度
-//				ch.pipeline().addLast("decoder",new Gate2ClientDecoder());//698长度域表示不包含起始符和结束符长度
+                        ch.pipeline().addLast("decoder",new Gate2ClientDecoderMulti(pId, isBigEndian, beginHexVal,
+                                lengthFieldOffset, lengthFieldLength, isDataLenthIncludeLenthFieldLenth, exceptDataLenth));//698长度域表示不包含起始符和结束符长度:1, false, -1, 1, 2, true, 1
                         ch.pipeline().addLast("encoder",new Gate2ClientEncoderMulti());
                         ch.pipeline().addLast(new SocketInHandler());
                     }
@@ -54,10 +68,11 @@ public class Server2Terminal {
      * 绑定服务到指定端口
      * @param serverBootstrap
      */
-    public static void bindAddress(ServerBootstrap serverBootstrap,int address){
+    public  void bindAddress(ServerBootstrap serverBootstrap,int address){
         ChannelFuture channelFuture;
         try {
-            channelFuture = serverBootstrap.bind(address).sync();
+            ProtocalStrategyCache.protocalServerCache.put(pId, this);
+            channelFuture = serverBootstrap.bind(Integer.parseInt(serverPort)).sync();
             System.out.println("网关服务端已启动！！");
             channelFuture.channel().closeFuture().sync();
 
@@ -67,5 +82,14 @@ public class Server2Terminal {
         }finally{
             CommonUtil.closeEventLoop(boss,work);
         }
+    }
+
+    /**
+     * 关闭服务
+     */
+    public void close(){
+        CommonUtil.closeEventLoop(boss,work);
+        //删除缓存种对应网关规约服务
+        ProtocalStrategyCache.protocalServerCache.remove(pId);
     }
 }
