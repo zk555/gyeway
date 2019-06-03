@@ -14,7 +14,7 @@ import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
 
 /**
- * Rpc远程客户端
+ * 通用通讯客户端
  */
 public class RemoteClient {
     private final Bootstrap bootstrap = new Bootstrap();

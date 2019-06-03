@@ -19,7 +19,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 import java.net.InetSocketAddress;
 
 /**
- * rpc远程服务handler
+ * rpc远程服务handler ,通用通讯服务端
  */
 public class RemoteServer {
     private final ServerBootstrap bootstrap;

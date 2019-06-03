@@ -1,6 +1,9 @@
 package com.gy.gyeway.utils;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.EventLoopGroup;
+import io.netty.util.ReferenceCountUtil;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -12,18 +15,45 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class CommonUtil {
     /**
+     * 网关编号
+     */
+    public static int gateNum ;
+
+    /**
+     * 使用池化的直接内存ByteBuf
+     */
+    private static PooledByteBufAllocator allocator;
+
+    /**
      * 计数
      */
     public static AtomicInteger recieveCount ;
 
     static{
         recieveCount = new AtomicInteger(0);
+        recieveCount = new AtomicInteger(0);
+        allocator = PooledByteBufAllocator.DEFAULT;
+    }
+    /**
+     * 从直接内存池中获取ByteBuf
+     * @return
+     */
+    public static ByteBuf getDirectByteBuf(){
+        return allocator.buffer();
     }
 
     /**
-     * 网关编号
+     * 释放ByteBuf
+     * @param buf
      */
-    public static int gateNum ;
+    public static void releaseByteBuf(ByteBuf buf){
+        if(buf != null ){
+            ReferenceCountUtil.release(buf);
+        }
+
+    }
+
+
     /**
      * 关闭EventLoopGroup
      * @param group

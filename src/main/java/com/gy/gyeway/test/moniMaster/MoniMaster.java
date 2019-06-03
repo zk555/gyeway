@@ -37,7 +37,7 @@ public class MoniMaster {
             protected void initChannel(SocketChannel sc) throws Exception {
 
                 sc.pipeline().addLast(new MoniMasterDecoder());
-//				sc.pipeline().addLast(new Gate2MasterEncoder());
+//				sc.pipeline().addLast(new Gate2MasterEncoderMult());
                 sc.pipeline().addLast(new MoniMasterHandler());
             }
         });

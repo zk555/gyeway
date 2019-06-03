@@ -51,10 +51,13 @@ public class SocketInHandler  extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         try{
             ChannelData channelData = (ChannelData)msg;
-//			SocketData data = channelData.getSocketData();
-//			String str=  StringUtils.encodeHex(data.getLenArea())+StringUtils.encodeHex(data.getContent());
-//			System.out.println("Server接收到数据"+str);
             CacheQueue.up2MasterQueue.put(channelData);
+            int len = channelData.getSocketData().getByteBuf().readableBytes();
+            byte[] car =  new byte[len];
+            channelData.getSocketData().getByteBuf().readBytes(car);
+            channelData.getSocketData().getByteBuf().readerIndex(0);
+//			System.out.println("GATE UP="+StringUtils.encodeHex(car)+";count="+CommonUtil.recieveCount.addAndGet(1));;
+
 
         }finally{
             ReferenceCountUtil.release(msg);

@@ -5,6 +5,7 @@ import com.gy.gyeway.base.domain.LocalCache;
 import com.gy.gyeway.concurrent.BasicThreadPoolTaskExecutor;
 import com.gy.gyeway.concurrent.ThreadFactoryImpl;
 import com.gy.gyeway.server.Server2Terminal;
+import com.gy.gyeway.utils.MixAll;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -60,7 +61,7 @@ public class ZKFramework {
         System.out.println("zk连接成功。。。。。");
         try {
             zNodeListener();
-//			addClusterNode();
+            addGateNode();
 //			downloadData2LocalCache();
         } catch (Exception e) {
             e.printStackTrace();
@@ -182,7 +183,18 @@ public class ZKFramework {
 
         zkNodeCache.del(nodeIp);
     }
-
+    /**
+     *
+     */
+    public void addGateNode(){
+        try {
+            String addr = MixAll.linuxLocalIP();
+            cf.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath("/iotGate2RPC/"+addr,addr.getBytes());
+            System.out.println("********zookeeper注册GATE信息成功！********");
+        } catch (Exception e) {
+            System.err.println("zookeeper注册GATE信息失败");
+        }
+    }
 
 
     public void start(String zkAddr){

@@ -3,8 +3,8 @@ package com.gy.gyeway.client;
 import com.gy.gyeway.base.constant.ConstantValue;
 import com.gy.gyeway.base.domain.GateHeader;
 import com.gy.gyeway.client.handler.Client2MasterInHandler;
-import com.gy.gyeway.codec.Gate2MasterDecoder;
-import com.gy.gyeway.codec.Gate2MasterEncoder;
+import com.gy.gyeway.codec.Gate2MasterDecoderMult;
+import com.gy.gyeway.codec.Gate2MasterEncoderMult;
 import com.gy.gyeway.utils.CommonUtil;
 import com.gy.gyeway.utils.StringUtils;
 import io.netty.bootstrap.Bootstrap;
@@ -44,8 +44,8 @@ public class Client2Master {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         //添加控制链
-                        ch.pipeline().addLast(new Gate2MasterDecoder());
-                        ch.pipeline().addLast(new Gate2MasterEncoder());//自定义编解码器  需要在自定义的handler的前面即pipeline链的前端，否则不起作用
+                        ch.pipeline().addLast(new Gate2MasterDecoderMult());
+                        ch.pipeline().addLast(new Gate2MasterEncoderMult());//自定义编解码器
                         ch.pipeline().addLast(new Client2MasterInHandler());
                     }
 
