@@ -26,10 +26,13 @@ public interface RPCExportService {
 
     /**
      * 新增规约
+     * @param pid
      * @param str
+     * @param startAtOnce  是否立即启动服务
      * @return
      */
-    ResponseData addNewProtocal(List<Integer> str);
+    ResponseData addNewProtocal(String pid ,List<Integer> str,boolean startAtOnce);
+
 
     /**
      * 更新规约
@@ -39,7 +42,7 @@ public interface RPCExportService {
     ResponseData updateProtocalByPid(String pid,List<Integer> str);
 
     /**
-     * 删除规约
+     * 删除规约，删除之后不能再有其它操作
      * @param pId
      * @return
      */
@@ -47,7 +50,7 @@ public interface RPCExportService {
 
     //----------------------------------------------------------
     /**
-     * 通过指定端口开启相关网关服务
+     * 通过指定端口开启被stop的网关服务
      * @param pId
      * @return
      */
