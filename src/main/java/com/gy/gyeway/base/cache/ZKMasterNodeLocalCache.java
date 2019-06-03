@@ -1,4 +1,4 @@
-package com.gy.gyeway.base.cluster;
+package com.gy.gyeway.base.cache;
 
 import com.gy.gyeway.base.domain.LocalCache;
 
@@ -7,14 +7,14 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 缓存zookeeper中master的节点信息
  */
-public class ZKlocalCache implements LocalCache {
+public class ZKMasterNodeLocalCache implements LocalCache {
 
     /**
      *  zk 缓存到 ConcurrentHashMap 中
      */
     private ConcurrentHashMap<String, String> zknodeCache = null;
 
-    private ZKlocalCache(){
+    private ZKMasterNodeLocalCache(){
         if(inner.zkLocalCache != null){
             throw new IllegalStateException("禁止创建gate.cluster.ZKlocalCache对象！");
         }
@@ -23,7 +23,7 @@ public class ZKlocalCache implements LocalCache {
 
 
     static class inner{
-        static ZKlocalCache zkLocalCache = new ZKlocalCache();
+        static ZKMasterNodeLocalCache zkLocalCache = new ZKMasterNodeLocalCache();
 
     }
 
@@ -43,8 +43,8 @@ public class ZKlocalCache implements LocalCache {
         return zknodeCache.remove(key) == null;
     }
 
-    public static ZKlocalCache getInstance(){
-        return ZKlocalCache.inner.zkLocalCache;
+    public static ZKMasterNodeLocalCache getInstance(){
+        return ZKMasterNodeLocalCache.inner.zkLocalCache;
     }
 
 

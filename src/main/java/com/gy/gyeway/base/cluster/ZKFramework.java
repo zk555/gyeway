@@ -1,7 +1,10 @@
 package com.gy.gyeway.base.cluster;
 
 import com.gy.gyeway.GyewayApplication;
+import com.gy.gyeway.base.cache.Cli2MasterLocalCache;
+import com.gy.gyeway.base.cache.ZKMasterNodeLocalCache;
 import com.gy.gyeway.base.domain.LocalCache;
+import com.gy.gyeway.client.Client2Master;
 import com.gy.gyeway.concurrent.BasicThreadPoolTaskExecutor;
 import com.gy.gyeway.concurrent.ThreadFactoryImpl;
 import com.gy.gyeway.server.Server2Terminal;
@@ -28,6 +31,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class ZKFramework {
     ExecutorService basicTaskExecutor = BasicThreadPoolTaskExecutor.getBasicExecutor() ;
+    private Cli2MasterLocalCache cli2MasterLocalCache = Cli2MasterLocalCache.getInstance();
 
     private CuratorFramework cf ;
     private final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor(
@@ -35,7 +39,7 @@ public class ZKFramework {
 
     private final String PARENT_PATH = "/iotGate2Master";
 
-    LocalCache zkNodeCache = ZKlocalCache.getInstance();
+    LocalCache zkNodeCache = ZKMasterNodeLocalCache.getInstance();
 
     /**
      * 连接zk
@@ -91,7 +95,8 @@ public class ZKFramework {
                         try {
                             String val = new String(event.getData().getData());
                             GyewayApplication.masterAddrs.add(val);
-                            addNode2Cache(val);
+//                            addNode2Cache(val);
+                            link2MasterNode(val);
                             GyewayApplication.locks.countDown();
                         } catch (Exception e) {
                             // TODO: handle exception
@@ -105,9 +110,12 @@ public class ZKFramework {
                         break;
                     case CHILD_REMOVED:
                         System.out.println("CHILD_REMOVED :" + event.getData().getPath());
-//					System.out.println("DATA :" + new String(event.getData().getData()));
+                        String ip = new String(event.getData().getData());
                         try {
-                            delNode2Cache(new String(event.getData().getData()));
+                            delNode2Cache(ip);
+                            Client2Master client2Master=(Client2Master) cli2MasterLocalCache.get(ip);
+                            //关闭与相应前置对应的client
+                            client2Master.close();
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -151,8 +159,6 @@ public class ZKFramework {
 
             }
         }, 1, 1, TimeUnit.MINUTES);
-
-
     }
 
     /**
@@ -163,7 +169,6 @@ public class ZKFramework {
         if(zkNodeCache.get(nodeIp) == null){
             zkNodeCache.set(nodeIp, nodeIp);
         }
-
     }
     /**
      * 更新节点
@@ -217,5 +222,25 @@ public class ZKFramework {
 
 
     }
+
+    /**
+     *
+     * @param addr
+     */
+    private void link2MasterNode(String addr){
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    System.out.println(String.format("！！！前置服务%s连接成功,前置端口必须为8888", addr));
+                    Client2Master client2Master = new Client2Master();
+                    client2Master.bindAddress2Client(client2Master.configClient(),addr,8888);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        },"gate2masterThread_ip_"+addr).start();
+    }
+
 
 }
