@@ -68,7 +68,7 @@ public class Server2Terminal {
      * 绑定服务到指定端口
      * @param serverBootstrap
      */
-    public  void bindAddress(ServerBootstrap serverBootstrap,int address){
+    public  void bindAddress(ServerBootstrap serverBootstrap){
         ChannelFuture channelFuture;
         try {
             ProtocalStrategyCache.protocalServerCache.put(pId, this);
