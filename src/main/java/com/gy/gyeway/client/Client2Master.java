@@ -32,7 +32,7 @@ public class Client2Master {
     private  EventLoopGroup worker = new NioEventLoopGroup();
     private Cli2MasterLocalCache cli2MasterLocalCache = Cli2MasterLocalCache.getInstance();
     private String ip;
-    public  Bootstrap configClient(){
+    public Bootstrap configClient(){
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(worker)
                 .channel(NioSocketChannel.class)
@@ -62,7 +62,7 @@ public class Client2Master {
      * @param port
      * @throws Exception
      */
-    public  void bindAddress2Client(Bootstrap bootstrap,String ip, int port) throws Exception{
+    public void bindAddress2Client(Bootstrap bootstrap, String ip, int port) throws Exception{
         cli2MasterLocalCache.set(ip, this);
         this.ip = ip;
         ChannelFuture channelFuture=bootstrap.connect(ip, port).sync();

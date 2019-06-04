@@ -42,7 +42,7 @@ public class GyewayApplication {
             } catch (InterruptedException e1) {
                 e1.printStackTrace();
             }
-        }else {
+        }else{
             //启动与前置对接的客户端  因为是阻塞运行 需要开线程启动
 
             for(int i = 0 ; i < masterAddrs.size() ; i++){
@@ -51,13 +51,14 @@ public class GyewayApplication {
                     public void run() {
                         try {
                             System.out.println(String.format("！！！前置服务%s连接成功,前置端口必须为8888", addr));
-                            Client2Master.bindAddress2Client(Client2Master.configClient(),addr,8888);
+                            Client2Master client2Master = new Client2Master();
+                            client2Master.bindAddress2Client(client2Master.configClient(),addr,8888);
 
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
-                },"gate2masterThread_"+i).start();
+                },"gate2masterThread_ip_"+addr).start();
             }
         }
         //启动与终端对接的服务端  因为是阻塞运行 需要开线程启动---后续版本中会变动
@@ -172,9 +173,11 @@ public class GyewayApplication {
 
     @SuppressWarnings("resource")
     public static String[] getProtocolType(String filePath){
+        File conf=  new File(filePath);
+        System.setProperty("BasicDir",conf.getParent() );
         BufferedReader bufferedReader =null;
         try {
-            bufferedReader = new BufferedReader(new FileReader(new File(filePath)));
+            bufferedReader = new BufferedReader(new FileReader(conf));
             String str;
             while((str = bufferedReader.readLine()) != null){
                 if(str.startsWith("protocolType")){
