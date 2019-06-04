@@ -81,22 +81,27 @@ public class RPCExportServiceImpl  implements RPCExportService{
             //do nothing
         }else{
             //start server
-            String pts = ProtocalStrategyCache.protocalStrategyCache.get(pid);
-            System.out.println("启动规约="+pts);
-            new Thread(new Runnable() {
-                public void run() {
+            if(!isAppoitedParseMethod(pid)){
+                String pts = ProtocalStrategyCache.protocalStrategyCache.get(pid);
+                System.out.println("启动规约="+pts);
+                new Thread(new Runnable() {
+                    public void run() {
 
-                    String[] pt = pts.split("\\,");
-                    boolean isBigEndian = "0".equals(pt[1]) ? false : true;
-                    boolean isDataLenthIncludeLenthFieldLenth = "0".equals(pt[5]) ? false : true;
-                    System.out.println(String.format("！！！网关开始提供规约类型为%s的终端连接服务，开启端口号为：%s", Integer.parseInt(pt[0]),Integer.parseInt(pt[7])));
-                    Server2Terminal server2Terminal = new Server2Terminal(pt[0],pt[7]);
-                    server2Terminal.bindAddress(server2Terminal.config(Integer.parseInt(pt[0]),isBigEndian,Integer.parseInt(pt[2]),
-                            Integer.parseInt(pt[3]),Integer.parseInt(pt[4]),isDataLenthIncludeLenthFieldLenth,Integer.parseInt(pt[6])));//1, false, -1, 1, 2, true, 1
+                        String[] pt = pts.split("\\,");
+                        boolean isBigEndian = "0".equals(pt[1]) ? false : true;
+                        boolean isDataLenthIncludeLenthFieldLenth = "0".equals(pt[5]) ? false : true;
+                        System.out.println(String.format("！！！网关开始提供规约类型为%s的终端连接服务，开启端口号为：%s", Integer.parseInt(pt[0]),Integer.parseInt(pt[7])));
+                        Server2Terminal server2Terminal = new Server2Terminal(pt[0],pt[7]);
+                        server2Terminal.bindAddress(server2Terminal.config(Integer.parseInt(pt[0]),isBigEndian,Integer.parseInt(pt[2]),
+                                Integer.parseInt(pt[3]),Integer.parseInt(pt[4]),isDataLenthIncludeLenthFieldLenth,Integer.parseInt(pt[6])));//1, false, -1, 1, 2, true, 1
 
-                }
-            },"gate2tmnlThread_pid_"+pid).start();
-            ProtocalStrategyCache.protocalStrategyCache.put(pid, pts);
+                    }
+                },"gate2tmnlThread_pid_"+pid).start();
+            }else{
+                //TODO 高级功能模块   自定义解析器实现
+
+            }
+
         }
         return responseData;
     }
@@ -198,22 +203,22 @@ public class RPCExportServiceImpl  implements RPCExportService{
     }
 
 
-    /**
-     * 创建指定对象
-     * @return 全类名
-     * @throws Exception
-     */
-    public static String makeClass(String pid , String methodContent) throws Exception{
-        ClassPool pool = ClassPool.getDefault();
-        String newClassName = "iotGate.strategy.Strategy"+pid;
-        CtClass clazz=pool.get("gate.codec.other.LengthParserImpl");
-        clazz.setName(newClassName);
-
-        CtMethod method = clazz.getDeclaredMethod("parseLength", new CtClass[]{pool.get("io.netty.buffer.ByteBuf"),pool.get("java.util.ArrayList")});
-        //在方法体之前增加输出
-        method.insertAfter("System.out.println(\"start....\"); "+ methodContent );
-
-        clazz.writeFile(System.getProperty("BasicDir"));
-        return newClassName;
-    }
+//    /**
+//     * 创建指定对象
+//     * @return 全类名
+//     * @throws Exception
+//     */
+//    public static String makeClass(String pid , String methodContent) throws Exception{
+//        ClassPool pool = ClassPool.getDefault();
+//        String newClassName = "iotGate.strategy.Strategy"+pid;
+//        CtClass clazz=pool.get("gate.codec.other.LengthParserImpl");
+//        clazz.setName(newClassName);
+//
+//        CtMethod method = clazz.getDeclaredMethod("parseLength", new CtClass[]{pool.get("io.netty.buffer.ByteBuf"),pool.get("java.util.ArrayList")});
+//        //在方法体之前增加输出
+//        method.insertAfter("System.out.println(\"start....\"); "+ methodContent );
+//
+//        clazz.writeFile(System.getProperty("BasicDir"));
+//        return newClassName;
+//    }
 }
