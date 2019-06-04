@@ -8,8 +8,8 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
 /**
  * class_name: RPCExportServiceImpl
  * package: com.gy.gyeway.rpc.rpcService
@@ -82,6 +82,7 @@ public class RPCExportServiceImpl  implements RPCExportService{
         }else{
             //start server
             String pts = ProtocalStrategyCache.protocalStrategyCache.get(pid);
+            System.out.println("启动规约="+pts);
             new Thread(new Runnable() {
                 public void run() {
 
@@ -116,10 +117,24 @@ public class RPCExportServiceImpl  implements RPCExportService{
     }
 
     @Override
-    public ResponseData getAllProtocal() {
+    public ResponseData getAllProtocal(boolean onlyRunning) {
         ResponseData responseData = new ResponseData();
         List<Object> list = new ArrayList<>();
-        list.add(ProtocalStrategyCache.protocalStrategyCache);
+
+        if(onlyRunning){
+            //查询正在运行解析服务的规约
+            Map<String,String> data = new HashMap<>();
+            Set set = ProtocalStrategyCache.protocalStrategyCache.keySet();
+            for (Object pid : set) {
+                if(ProtocalStrategyCache.protocalServerCache.containsKey(pid)){
+                    data.put(pid.toString(), ProtocalStrategyCache.protocalStrategyCache.get(pid));
+                }
+
+            }
+            list.add(data);
+        }else{
+            list.add(ProtocalStrategyCache.protocalStrategyCache);
+        }
         responseData.setData(list);
         return responseData;
     }

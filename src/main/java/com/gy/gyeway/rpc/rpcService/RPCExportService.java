@@ -21,7 +21,7 @@ public interface RPCExportService {
      * 获取当前网关所支持的所有规约信息
      * @return
      */
-    ResponseData getAllProtocal();
+    ResponseData getAllProtocal(boolean onlyRunning);
 
 
     /**
