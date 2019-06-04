@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 动态 多规约解码器---高级功能
+ * 动态 多规约解码器---高级功能模块，目前暂未启用
  */
 public class DynamicGate2ClientDecoderMulti  extends ByteToMessageDecoder {
     private int pId;//规约类型--[0,127]共128种规约

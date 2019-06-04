@@ -151,25 +151,25 @@ public class RPCExportServiceImpl  implements RPCExportService{
         return responseData;
     }
 
-    @Override
-    public ResponseData addStrategyByAppointParseMethod(String pid,List<Integer> strategy ,String Content) {
-        ResponseData responseData = new ResponseData();
-        //BasicDir
-        String className = null;
-        try {
-            className = makeClass(pid , Content);
-        } catch (Exception e) {
-            e.printStackTrace();
-            responseData.setErroInfo(e);
-            responseData.setReturnCode(500);
-            return responseData;
-        }
-        if(className != null){
-            ProtocalStrategyCache.protocalStrategyClassUrlCache.put(pid, className);
-            addNewProtocal(pid,strategy,false);
-        }
-        return responseData;
-    }
+//    @Override
+//    public ResponseData addStrategyByAppointParseMethod(String pid,List<Integer> strategy ,String Content) {
+//        ResponseData responseData = new ResponseData();
+//        //BasicDir
+//        String className = null;
+//        try {
+//            className = makeClass(pid , Content);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            responseData.setErroInfo(e);
+//            responseData.setReturnCode(500);
+//            return responseData;
+//        }
+//        if(className != null){
+//            ProtocalStrategyCache.protocalStrategyClassUrlCache.put(pid, className);
+//            addNewProtocal(pid,strategy,false);
+//        }
+//        return responseData;
+//    }
 
 
     /**
