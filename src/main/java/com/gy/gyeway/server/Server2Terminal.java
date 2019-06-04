@@ -65,6 +65,7 @@ public class Server2Terminal {
                 .group(boss, work)
                 .channel(NioServerSocketChannel.class)
                 .option(ChannelOption.SO_KEEPALIVE, true)
+                .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT)
                 .childOption(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT)
                 .childHandler(new ChannelInitializer<SocketChannel>() {

@@ -8,8 +8,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.util.internal.RecyclableArrayList;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,18 +55,16 @@ public class Gate2ClientDecoderMulti  extends ByteToMessageDecoder {
         int baseLen = lengthFieldOffset + lengthFieldLength + exceptDataLenth + initialBytesToStrip;
         if(in.readableBytes()>= baseLen){
             int beginReader;
+            RecyclableArrayList arrayList = RecyclableArrayList.newInstance();
             while (true) {
                 if(in.readableBytes()>= baseLen){
                     // 获取包头开始的index
                     beginReader = in.readerIndex();
                     // 标记包头开始的index
                     in.markReaderIndex();
-
                     ByteBuf byteBuf = CommonUtil.getDirectByteBuf();
-
                     if(initialBytesToStrip == 0){
                         byteBuf.writeBytes(in.readBytes(lengthFieldOffset));
-
                         //处理长度域
                         ByteBuf lenAre = in.readBytes(lengthFieldLength);
                         byteBuf.writeBytes(lenAre);
@@ -95,7 +95,6 @@ public class Gate2ClientDecoderMulti  extends ByteToMessageDecoder {
                         if(isDataLenthIncludeLenthFieldLenth){
                             lenVal = lenVal - lengthFieldLength;
                         }
-
                         if(in.readableBytes() >= (lenVal+exceptDataLenth)  && lenVal>0){
                             byteBuf.writeBytes(in.readBytes(lenVal+exceptDataLenth));
                             in.markReaderIndex();
@@ -106,15 +105,14 @@ public class Gate2ClientDecoderMulti  extends ByteToMessageDecoder {
                             SocketData data = new SocketData(byteBuf);
                             data.setpId(pId);
                             ChannelData channelData =  new ChannelData(clientIpAddress, data);
-                            out.add(channelData);
-                            break;
+                            arrayList.add(channelData);
+                            continue;
                         }else{
                             //还原
                             in.readerIndex(beginReader+1);
                             CommonUtil.releaseByteBuf(byteBuf);
                             break;
                         }
-
                     }else{
                         byteBuf.writeBytes(in.readBytes(initialBytesToStrip));
                         byteBuf.writeBytes(in.readBytes(lengthFieldOffset));
@@ -159,7 +157,7 @@ public class Gate2ClientDecoderMulti  extends ByteToMessageDecoder {
                             SocketData data = new SocketData(byteBuf);
                             data.setpId(pId);
                             ChannelData channelData =  new ChannelData(clientIpAddress, data);
-                            out.add(channelData);
+                            arrayList.add(channelData);
                             continue;
                         }else{
                             //还原
@@ -169,6 +167,17 @@ public class Gate2ClientDecoderMulti  extends ByteToMessageDecoder {
                         }
                     }
                 }else{
+                    int size = arrayList.size();
+                    if(size == 1){
+                        out.add(arrayList.get(0));
+                    }else if(size > 1){
+                        ArrayList<Object> arrayList2 = new ArrayList<>(size);
+                        for (int i = 0; i < size; i++) {
+                            arrayList2.add(arrayList.get(i));
+                        }
+                        out.add(arrayList2);
+                    }
+                    arrayList.recycle();
                     break;
                 }
             }
