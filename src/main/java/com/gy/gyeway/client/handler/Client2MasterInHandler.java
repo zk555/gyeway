@@ -5,30 +5,27 @@ import com.gy.gyeway.base.cachequeue.CacheQueue;
 import com.gy.gyeway.base.domain.ChannelData;
 import com.gy.gyeway.utils.StringUtils;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
+import java.util.List;
+
+@ChannelHandler.Sharable
 public class Client2MasterInHandler  extends SimpleChannelInboundHandler<ChannelData> {
 
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ChannelData msg) throws Exception {
-//        String str=  StringUtils.encodeHex(msg.getSocketData().getLenArea())+StringUtils.encodeHex(msg.getSocketData().getContent());
-
-
-        Channel channel = ClientChannelCache.get(msg.getIpAddress());//127:0:0:1:56445
-//		System.out.println("下行时得到终端ip=="+msg.getIpAddress());
-        if(channel != null){
-            int len = msg.getSocketData().getByteBuf().readableBytes();
-            byte[] car =  new byte[len];
-            msg.getSocketData().getByteBuf().readBytes(car);
-            msg.getSocketData().getByteBuf().readerIndex(0);
-//			System.out.println("Gate Down = "+StringUtils.encodeHex(car));
-            channel.writeAndFlush(msg);
-//            System.out.println("Gate Down = 68"+str+"16");//3000010523605413040000A4D781008007E20802050F250D000D07E20802050F250D000D07E20802050F250D000D56F1
+        if(msg instanceof List){
+            List<ChannelData> dataList = (List<ChannelData>) msg;
+            for (ChannelData channelData : dataList) {
+                CacheQueue.down2TmnlQueue.put(channelData);
+            }
+        }else{
+            ChannelData channelData = (ChannelData)msg;
+            CacheQueue.down2TmnlQueue.put(channelData);
         }
-
-
     }
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {

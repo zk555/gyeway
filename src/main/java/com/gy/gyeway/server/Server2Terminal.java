@@ -3,9 +3,12 @@ package com.gy.gyeway.server;
 import com.gy.gyeway.base.cache.ProtocalStrategyCache;
 import com.gy.gyeway.codec.Gate2ClientDecoderMulti;
 import com.gy.gyeway.codec.Gate2ClientEncoderMulti;
+import com.gy.gyeway.codec.other.DynamicGate2ClientDecoderMulti;
+import com.gy.gyeway.codec.other.LengthParser;
 import com.gy.gyeway.server.handler.SocketInHandler;
 import com.gy.gyeway.utils.CommonUtil;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -14,8 +17,11 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
 
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 网关获取报文
@@ -28,12 +34,25 @@ public class Server2Terminal {
     private  String  serverPort;
     private  EventLoopGroup  boss;
     private  EventLoopGroup work;
+    private DefaultEventExecutorGroup defaultEventExecutorGroup;
+
 
     public Server2Terminal (String pId,String serverPort){
         this.pId = pId;
         this.serverPort = serverPort;
         this.boss = new NioEventLoopGroup(1);
         this.work = new NioEventLoopGroup();
+        this.defaultEventExecutorGroup = new DefaultEventExecutorGroup(
+                Runtime.getRuntime().availableProcessors()*2 ,new ThreadFactory() {
+
+            private AtomicInteger threadIndex = new AtomicInteger(0);
+
+
+            @Override
+            public Thread newThread(Runnable r) {
+                return new Thread(r, "NettyServerWorkerThread_" + this.threadIndex.incrementAndGet());
+            }
+        });
     }
     /**
      * 通过引导配置参数
@@ -46,6 +65,8 @@ public class Server2Terminal {
                 .group(boss, work)
                 .channel(NioServerSocketChannel.class)
                 .option(ChannelOption.SO_KEEPALIVE, true)
+                .option(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT)
+                .childOption(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT)
                 .childHandler(new ChannelInitializer<SocketChannel>() {
 
                     @Override

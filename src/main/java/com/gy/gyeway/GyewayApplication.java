@@ -8,6 +8,7 @@ import com.gy.gyeway.client.Client2Master;
 import com.gy.gyeway.rpc.RPCProcessor.RPCProcessor;
 import com.gy.gyeway.rpc.RPCProcessor.RPCProcessorImpl;
 import com.gy.gyeway.server.Server2Terminal;
+import com.gy.gyeway.threadWorkers.MClient2Tmnl;
 import com.gy.gyeway.threadWorkers.TServer2MClient;
 import com.gy.gyeway.utils.CommonUtil;
 import org.apache.commons.cli.CommandLine;
@@ -149,11 +150,16 @@ public class GyewayApplication {
      * 环境初始化  ---目前最还先不用spring管理
      */
     public static  void initEnvriment(){
+        //初始化数据中转线程
+        try {
+            new TServer2MClient(CacheQueue.up2MasterQueue,2).start();
+            new MClient2Tmnl(CacheQueue.down2TmnlQueue, 2).start();
+        } catch (Exception e) {
+            System.err.println("数据中转线程启动失败");
+            e.printStackTrace();
+            System.exit(-1);
+        };
 
-        ExecutorService exService = Executors.newFixedThreadPool(1);
-
-        //初始化  网关终端端 --->  网关前置端   搬运数据线程
-        exService.execute(new TServer2MClient(CacheQueue.up2MasterQueue));
     }
     /**
      * JVM的关闭钩子--JVM正常关闭才会执行

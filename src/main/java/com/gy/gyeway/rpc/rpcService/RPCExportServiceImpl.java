@@ -77,7 +77,7 @@ public class RPCExportServiceImpl  implements RPCExportService{
             responseData.setErroInfo(new IllegalArgumentException("参数不正确,请检查参数设置！"));
             return responseData;
         }
-        if(ProtocalStrategyCache.protocalServerCache.contains(pid)){
+        if(ProtocalStrategyCache.protocalServerCache.containsKey(pid)){
             //do nothing
         }else{
             //start server
@@ -148,7 +148,7 @@ public class RPCExportServiceImpl  implements RPCExportService{
             responseData.setErroInfo(new IllegalArgumentException("参数不正确,请检查参数设置！"));
             return responseData;
         }
-        if(ProtocalStrategyCache.protocalStrategyCache.contains(pid)){
+        if(ProtocalStrategyCache.protocalStrategyCache.containsKey(pid)){
             //exist
             return responseData;
         }else{
@@ -199,7 +199,7 @@ public class RPCExportServiceImpl  implements RPCExportService{
 
 
     /**
-     * 创建自定义对象
+     * 创建指定对象
      * @return 全类名
      * @throws Exception
      */

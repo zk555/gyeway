@@ -3,6 +3,7 @@ package com.gy.gyeway.server.handler;
 import com.gy.gyeway.base.cache.ClientChannelCache;
 import com.gy.gyeway.base.cachequeue.CacheQueue;
 import com.gy.gyeway.base.domain.ChannelData;
+import com.gy.gyeway.utils.CommonUtil;
 import com.gy.gyeway.utils.StringUtils;
 import io.netty.channel.*;
 import io.netty.handler.timeout.IdleState;
@@ -10,10 +11,12 @@ import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
 
 import java.net.InetSocketAddress;
+import java.util.List;
 
 /**
  * 消息处理handler :  把消息处理后组装成object 缓存到容器中
  */
+@ChannelHandler.Sharable
 public class SocketInHandler  extends ChannelInboundHandlerAdapter {
 
     /**
@@ -50,14 +53,20 @@ public class SocketInHandler  extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         try{
-            ChannelData channelData = (ChannelData)msg;
-            CacheQueue.up2MasterQueue.put(channelData);
-            int len = channelData.getSocketData().getByteBuf().readableBytes();
-            byte[] car =  new byte[len];
-            channelData.getSocketData().getByteBuf().readBytes(car);
-            channelData.getSocketData().getByteBuf().readerIndex(0);
-//			System.out.println("GATE UP="+StringUtils.encodeHex(car)+";count="+CommonUtil.recieveCount.addAndGet(1));;
-
+            if(msg instanceof List){
+                List<ChannelData> lists = (List<ChannelData>) msg;
+                for (ChannelData channelData : lists) {
+                    CacheQueue.up2MasterQueue.put(channelData);
+                    int len = channelData.getSocketData().getByteBuf().readableBytes();
+                    byte[] car =  new byte[len];
+                    channelData.getSocketData().getByteBuf().readBytes(car);
+                    channelData.getSocketData().getByteBuf().readerIndex(0);
+                    System.out.println("LIST GATE UP="+StringUtils.encodeHex(car)+";count="+CommonUtil.recieveCount.addAndGet(1));;
+                }
+            } else{
+                ChannelData channelData = (ChannelData)msg;
+                CacheQueue.up2MasterQueue.put(channelData);
+            }
 
         }finally{
             ReferenceCountUtil.release(msg);

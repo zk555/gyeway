@@ -11,13 +11,17 @@ import com.gy.gyeway.utils.StringUtils;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
 
 import java.net.Inet4Address;
 import java.net.InetSocketAddress;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * class_name: Client2Master
@@ -32,6 +36,22 @@ public class Client2Master {
     private  EventLoopGroup worker = new NioEventLoopGroup();
     private Cli2MasterLocalCache cli2MasterLocalCache = Cli2MasterLocalCache.getInstance();
     private String ip;
+    private DefaultEventExecutorGroup defaultEventExecutorGroup;
+
+    public Client2Master() {
+        super();
+        this.defaultEventExecutorGroup = new DefaultEventExecutorGroup(//
+                Runtime.getRuntime().availableProcessors()/2 , new ThreadFactory() {
+
+            private AtomicInteger threadIndex = new AtomicInteger(0);
+
+            @Override
+            public Thread newThread(Runnable r) {
+                return new Thread(r, "NettyClientWorkerThread_" + this.threadIndex.incrementAndGet());
+            }
+        });
+    }
+
     public Bootstrap configClient(){
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(worker)
@@ -41,6 +61,7 @@ public class Client2Master {
                  * 设置ByteBuf的高低水位线，原方法WRITE_BUFFER_HIGH_WATER_MARK，WRITE_BUFFER_LOW_WATER_MARK已经被废弃
                  * 由WRITE_BUFFER_WATER_MARK代替
                  */
+                .option(ChannelOption.ALLOCATOR, UnpooledByteBufAllocator.DEFAULT)
                 .option(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(32 * 1024 * 1024, 64 * 1024 * 1024))//加上该配置后，网byteBuf写数据前需要判断iswriteble
                 .handler(new ChannelInitializer<SocketChannel>() {
 
