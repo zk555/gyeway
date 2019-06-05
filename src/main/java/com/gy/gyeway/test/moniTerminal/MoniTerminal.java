@@ -31,21 +31,16 @@ public class moniTerminal {
 		.option(ChannelOption.SO_KEEPALIVE, true)
 		.option(ChannelOption.SO_SNDBUF, 32*1024)
 		.option(ChannelOption.SO_RCVBUF, 32*1024)
-		
 		//这里方法名与服务端不一样，其他一致
 		.handler(new ChannelInitializer<SocketChannel>() {
-
 			@Override
 			protected void initChannel(SocketChannel sc) throws Exception {
-				
 				sc.pipeline().addLast(new moniTerminalHandler());
 			}
 		});
 		return bootstrap;
 	}
 	public static void startClient(Bootstrap bootstrap) throws InterruptedException{
-		
-		
 				ChannelFuture channelFuture=bootstrap.connect("localhost", port).sync();
 				for(int i = 0; i<10 ; i++){
 //					Thread.sleep(5000);
@@ -68,16 +63,12 @@ public class moniTerminal {
 						 */
 						byte[] data = StringUtils.decodeHex("684A004A006800114155000000E3000001002342161526044516");
 						channelFuture.channel().writeAndFlush(Unpooled.wrappedBuffer(data));
-						
-						
 //					}
-					
 				}
 				channelFuture.channel().closeFuture().sync();
 				work.shutdownGracefully();
 	}
-	private static int port = 9816;
-	
+	private static int port = 9811;
 	public static void main(String[] args) throws InterruptedException {
 		/**
 		 * 模拟终端启动
@@ -85,7 +76,6 @@ public class moniTerminal {
 		final Bootstrap bootstrap =config();
 		ExecutorService serExecutorService = Executors.newFixedThreadPool(CountHelper.ThreadNum);
 		for(int i=0 ; i<CountHelper.ThreadNum ;i++){
-			
 			serExecutorService.execute(new Runnable() {
 				public void run() {
 					try {

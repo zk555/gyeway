@@ -1,6 +1,6 @@
 package com.gy.gyeway.test.moniMaster;
 
-import gate.util.MixAll;
+import com.gy.gyeway.utils.MixAll;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -23,9 +23,7 @@ import org.apache.zookeeper.CreateMode;
  */
 public class moniMaster {
 	public static void main(String[] args) {
-		
-		String zkAddr = "192.168.142.152:2181";
-		
+		String zkAddr = "192.168.142.153:2181";
 		EventLoopGroup boss=new NioEventLoopGroup();
 		EventLoopGroup work=new NioEventLoopGroup();
 		//创建ServerBootstrap辅助类  客户端是Bootstrap辅助类 注意区分
@@ -39,35 +37,25 @@ public class moniMaster {
 
 			@Override
 			protected void initChannel(SocketChannel sc) throws Exception {
-				
 				sc.pipeline().addLast(new moniMasterDecoder());
 				sc.pipeline().addLast(new moniMasterHandler());
 			}
 		});
 		new Thread(new Runnable() {
-			
 			@Override
 			public void run() {
 				ChannelFuture channelFuture;
 				try {
 					channelFuture = bootstrap.bind(8888).sync();
 					System.out.println("模拟前置已启动！！port = " +8888);
-					
 					channelFuture.channel().closeFuture().sync();
-					
 					boss.shutdownGracefully();
 					work.shutdownGracefully();
 				} catch (InterruptedException e) {
-					
 					e.printStackTrace();
 				}
 			}
 		},"moniQZThread").start();
-		
-		
-		
-		
-		
 		RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 10);
 		CuratorFramework cf = CuratorFrameworkFactory.builder()
 					.connectString(zkAddr)
@@ -85,8 +73,6 @@ public class moniMaster {
 			}
 		}
 		System.out.println("zk连接成功。。。。。");
-		
-		
 		try {
 			String addr = MixAll.linuxLocalIP();
 			cf.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath("/iotGate2Master/"+addr,addr.getBytes());

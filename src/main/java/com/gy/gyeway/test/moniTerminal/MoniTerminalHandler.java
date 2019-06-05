@@ -1,10 +1,10 @@
 package com.gy.gyeway.test.moniTerminal;
 
+import com.gy.gyeway.test.CountHelper;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import test.CountHelper;
 
 
 /**
@@ -30,7 +30,6 @@ public class moniTerminalHandler  extends SimpleChannelInboundHandler<ByteBuf> {
 		// TODO Auto-generated method stub
 		ByteBuf recieveMsg=(ByteBuf) msg;
 		String code = ByteBufUtil.hexDump(recieveMsg).toUpperCase();//将bytebuf中的可读字节 转换成16进制数字符串
-		
 		System.out.println("接收总数："+CountHelper.clientRecieveCount.addAndGet(1)+" ;模拟终端收到数据w："+code);
 	}
 	

@@ -19,23 +19,17 @@ public class moniMasterDecoder  extends ByteToMessageDecoder {
 
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-		
 		//解码网关头 获取终端ip
 		ChannelData channelData = decodeGateHeader(in);
 		if(channelData != null){
 			out.add(channelData);
-			
 		}
-		
-		
-
 	}
 	public ChannelData decodeGateHeader(ByteBuf in){
 		if(in.readableBytes()>31){
 			//网关头固定为28位  加SocketData至少3位
 			StringBuilder clientIpAddress ;
 			int beginReader;
-			
 			while (true) {
 				beginReader = in.readerIndex();
 				int gateHeader = in.readByte() & 0xFF;
@@ -46,8 +40,6 @@ public class moniMasterDecoder  extends ByteToMessageDecoder {
 						in.readerIndex(beginReader);
 						SocketData data = new SocketData(in.readBytes(socketDataLen+28));
 						ChannelData channelData =  new ChannelData(data);
-						
-						
 						return channelData;
 					}else{
 						//报文不完整
@@ -56,14 +48,12 @@ public class moniMasterDecoder  extends ByteToMessageDecoder {
 					}
 				}else{
 					if (in.readableBytes() <= 31) {
-						
 						return null;
 					}
 					continue ;
 				}
 			}
 		}
-		
 		return null;
 	}
 	
@@ -73,7 +63,6 @@ public class moniMasterDecoder  extends ByteToMessageDecoder {
 	 * @return
 	 */
 	public int readLenArea(ByteBuf in){
-		
 		ByteBuf buf = in.readBytes(2);//两个字节的长度域
 //		lenArea = buf.array();//不能使用.array  因为默认是零拷贝
 		byte left = buf.readByte();
