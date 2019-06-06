@@ -36,19 +36,12 @@ public class RemoteServer {
     public void start(){
         bootstrap.group(eventLoopGroupBoss, eventLoopGroupWorker)
                 .channel(NioServerSocketChannel.class)
-                //
                 .option(ChannelOption.SO_BACKLOG, 1024)
-                //
                 .option(ChannelOption.SO_REUSEADDR, true)
-                //
                 .option(ChannelOption.SO_KEEPALIVE, false)
-                //
                 .childOption(ChannelOption.TCP_NODELAY, true)
-                //
                 .option(ChannelOption.SO_SNDBUF, 65535)
-                //
                 .option(ChannelOption.SO_RCVBUF, 65535)
-                //
                 .localAddress(new InetSocketAddress(10916))//默认端口10916
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
@@ -86,18 +79,15 @@ public class RemoteServer {
             super.channelUnregistered(ctx);
         }
 
-
         @Override
         public void channelActive(ChannelHandlerContext ctx) throws Exception {
             super.channelActive(ctx);
 
         }
 
-
         @Override
         public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         }
-
 
         @Override
         public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
@@ -107,7 +97,6 @@ public class RemoteServer {
                     ctx.channel().close();
                 }
             }
-
             ctx.fireUserEventTriggered(evt);
         }
 

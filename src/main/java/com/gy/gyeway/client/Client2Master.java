@@ -105,7 +105,7 @@ public class Client2Master {
 
     /**
      * 组装网关登录报文
-     * @param channel
+     * @param //channel
      * @throws Exception
      */
     public  ByteBuf loginGateHeader(String LocalIpAddress) throws Exception{
@@ -154,4 +154,8 @@ public class Client2Master {
         cli2MasterLocalCache.del(ip);
     }
 
+    public static void main(String[] args) {
+        byte b = Integer.valueOf(ConstantValue.GATE_HEAD_DATA).byteValue();
+        System.out.println("b = " + b);
+    }
 }

@@ -39,7 +39,7 @@ public class TServer2MClient  implements DataTransfer{
                     while(true){
                         ChannelData channelData = null;
                         try {
-                            channelData = up2MasterQueue.take();//获取从Server4Terminal发送过来的上行报文对象
+                            channelData = up2MasterQueue.take();//获取从Server2Terminal发送过来的上行报文对象
                             if(channelData == null){
                                 continue;
                             }
@@ -58,7 +58,7 @@ public class TServer2MClient  implements DataTransfer{
                             e.printStackTrace();
                         }
                     }
-                }
+                }//34 + 9 =43  22 - 5 =16 ..
             });
         }
 

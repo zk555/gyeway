@@ -1,10 +1,7 @@
 package com.gy.gyeway.client.handler;
 
-import com.gy.gyeway.base.cache.ClientChannelCache;
 import com.gy.gyeway.base.cachequeue.CacheQueue;
 import com.gy.gyeway.base.domain.ChannelData;
-import com.gy.gyeway.utils.StringUtils;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;

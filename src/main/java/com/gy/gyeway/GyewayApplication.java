@@ -14,15 +14,12 @@ import com.gy.gyeway.utils.CommonUtil;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @SpringBootApplication
 public class GyewayApplication {
@@ -45,16 +42,13 @@ public class GyewayApplication {
             }
         }else{
             //启动与前置对接的客户端  因为是阻塞运行 需要开线程启动
-
             for(int i = 0 ; i < masterAddrs.size() ; i++){
                 String addr = masterAddrs.get(i);
                 new Thread(new Runnable() {
                     public void run() {
                         try {
-//                            System.out.println(String.format("！！！前置服务%s连接成功,前置端口必须为8888", addr));
                             Client2Master client2Master = new Client2Master();
                             client2Master.bindAddress2Client(client2Master.configClient(),addr,8888);
-
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -67,11 +61,8 @@ public class GyewayApplication {
             //启动与终端对接的服务端  因为是阻塞运行 需要开线程启动---后续版本中会变动
             String pts =  protocolType[i];
             String pid = pts.split("\\,")[0];//pId
-
             new Thread(new Runnable() {
                 public void run() {
-                    // TODO Auto-generated method stub
-
                     String[] pt = pts.split("\\,");
                     boolean isBigEndian = "0".equals(pt[1]) ? false : true;
                     boolean isDataLenthIncludeLenthFieldLenth = "0".equals(pt[5]) ? false : true;
@@ -79,29 +70,10 @@ public class GyewayApplication {
                     Server2Terminal server2Terminal = new Server2Terminal(pt[0],pt[7]);
                     server2Terminal.bindAddress(server2Terminal.config(Integer.parseInt(pt[0]),isBigEndian,Integer.parseInt(pt[2]),
                             Integer.parseInt(pt[3]),Integer.parseInt(pt[4]),isDataLenthIncludeLenthFieldLenth,Integer.parseInt(pt[6])));//1, false, -1, 1, 2, true, 1
-
                 }
             },"gate2tmnlThread_pid_"+pid).start();
             ProtocalStrategyCache.protocalStrategyCache.put(pid, pts);
         }
-//        //启动与前置对接的客户端  因为是阻塞运行 需要开线程启动
-//
-//        for(int i = 0 ; i < masterAddrs.size() ; i++){
-//            String addr = masterAddrs.get(i);
-//            new Thread(new Runnable() {
-//                public void run() {
-//                    try {
-//                        System.out.println(String.format("！！！前置服务%s连接成功,前置端口必须为8888", addr));
-//                        Client2Master.bindAddress2Client(Client2Master.configClient(),addr,8888);
-//
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                        System.err.println("rpc服务发布失败...............");
-//                    }
-//                }
-//            },"gate2masterThread_"+i).start();
-//        }
-
         try {
             processor.exportService();
         } catch (Exception e) {
@@ -115,7 +87,6 @@ public class GyewayApplication {
      * 命令行
      */
     public static boolean suitCommonLine(String[] args){
-
         commandLine =
                 CommonUtil.parseCmdLine("iotGateServer", args, CommonUtil.buildCommandlineOptions(new Options()),
                         new PosixParser());
@@ -132,7 +103,6 @@ public class GyewayApplication {
             for (String string : vals) {
                 masterAddrs.add(string);
             }
-
         }else{
             System.err.println("启动参数有误，请重新启动");
             System.exit(-1);

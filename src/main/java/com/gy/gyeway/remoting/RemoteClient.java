@@ -25,15 +25,10 @@ public class RemoteClient {
 
     public void start(String ip ,int port) throws InterruptedException{
         Bootstrap handler = this.bootstrap.group(this.eventLoopGroupWorker).channel(NioSocketChannel.class)//
-                //
                 .option(ChannelOption.TCP_NODELAY, true)
-                //
                 .option(ChannelOption.SO_KEEPALIVE, false)
-                //
                 .option(ChannelOption.SO_SNDBUF, 65535)
-                //
                 .option(ChannelOption.SO_RCVBUF, 65535)
-                //
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     public void initChannel(SocketChannel ch) throws Exception {
@@ -54,26 +49,17 @@ public class RemoteClient {
         public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
             super.channelRegistered(ctx);
         }
-
-
         @Override
         public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
             super.channelUnregistered(ctx);
         }
-
-
         @Override
         public void channelActive(ChannelHandlerContext ctx) throws Exception {
             super.channelActive(ctx);
-
         }
-
-
         @Override
         public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         }
-
-
         @Override
         public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
             if (evt instanceof IdleStateEvent) {
@@ -82,11 +68,8 @@ public class RemoteClient {
                     ctx.channel().close();
                 }
             }
-
             ctx.fireUserEventTriggered(evt);
         }
-
-
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
             ctx.channel().close();
@@ -94,7 +77,6 @@ public class RemoteClient {
     }
 
     class NettyClientHandler extends SimpleChannelInboundHandler<ResponseData> {
-
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, ResponseData msg) throws Exception {
             /**

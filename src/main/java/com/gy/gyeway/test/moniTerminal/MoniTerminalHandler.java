@@ -21,13 +21,11 @@ public class moniTerminalHandler  extends SimpleChannelInboundHandler<ByteBuf> {
 	}
 
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-		// TODO Auto-generated method stub
 		System.err.println("出现异常。。。");
 	}
 	
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
-		// TODO Auto-generated method stub
 		ByteBuf recieveMsg=(ByteBuf) msg;
 		String code = ByteBufUtil.hexDump(recieveMsg).toUpperCase();//将bytebuf中的可读字节 转换成16进制数字符串
 		System.out.println("接收总数："+CountHelper.clientRecieveCount.addAndGet(1)+" ;模拟终端收到数据w："+code);

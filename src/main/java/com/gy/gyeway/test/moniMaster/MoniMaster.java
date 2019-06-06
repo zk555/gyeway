@@ -56,6 +56,7 @@ public class moniMaster {
 				}
 			}
 		},"moniQZThread").start();
+
 		RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 10);
 		CuratorFramework cf = CuratorFrameworkFactory.builder()
 					.connectString(zkAddr)
@@ -80,6 +81,5 @@ public class moniMaster {
 		} catch (Exception e) {
 			System.err.println("zookeeper注册前置信息失败");
 		}
-		
 	}
 }

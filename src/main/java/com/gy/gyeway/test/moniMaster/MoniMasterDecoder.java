@@ -28,7 +28,6 @@ public class moniMasterDecoder  extends ByteToMessageDecoder {
 	public ChannelData decodeGateHeader(ByteBuf in){
 		if(in.readableBytes()>31){
 			//网关头固定为28位  加SocketData至少3位
-			StringBuilder clientIpAddress ;
 			int beginReader;
 			while (true) {
 				beginReader = in.readerIndex();

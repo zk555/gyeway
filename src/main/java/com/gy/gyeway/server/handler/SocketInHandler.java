@@ -18,7 +18,6 @@ import java.util.List;
  */
 @ChannelHandler.Sharable
 public class SocketInHandler  extends ChannelInboundHandlerAdapter {
-
     /**
      * 接入网关后处理请求信息
      * @param ctx
@@ -29,8 +28,7 @@ public class SocketInHandler  extends ChannelInboundHandlerAdapter {
         super.channelActive(ctx);
         Channel channel = ctx.channel();
         InetSocketAddress insocket = (InetSocketAddress)channel.remoteAddress();
-        String ipAddress = StringUtils.formatIpAddress(insocket.getHostName(), String.valueOf(insocket.getPort()));
-        String clientIpAddress = ipAddress;// ctx.channel().remoteAddress().toString().replaceAll("\\/", "");// clientIpAddress = "127.0.0.1:53956"
+        String clientIpAddress = StringUtils.formatIpAddress(insocket.getHostName(), String.valueOf(insocket.getPort()));
         Integer count = CacheQueue.ipCountRelationCache.get(clientIpAddress);
         if(count != null && count.intValue() < 10000){
             CacheQueue.ipCountRelationCache.put(clientIpAddress, count+1);
@@ -39,13 +37,12 @@ public class SocketInHandler  extends ChannelInboundHandlerAdapter {
         };
         ClientChannelCache.set(clientIpAddress, channel);
     }
-
+    /**
+     * 下线时删除缓存中对应的client的缓存
+     */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
-        /**
-         * 下线时删除缓存中对应的client的缓存
-         */
         String clientIpAddress = ctx.channel().remoteAddress().toString().replaceAll("\\/", "");// clientIpAddress = "127.0.0.1:53956"
         ClientChannelCache.removeOne(clientIpAddress);
     }
@@ -72,17 +69,13 @@ public class SocketInHandler  extends ChannelInboundHandlerAdapter {
                 channelData.getSocketData().getByteBuf().readerIndex(0);
                 System.out.println("UNIT GATE UP="+StringUtils.encodeHex(car)+";count="+CommonUtil.recieveCount.addAndGet(1));;
             }
-
         }finally{
             ReferenceCountUtil.release(msg);
         }
-
-
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        // TODO Auto-generated method stub
         super.exceptionCaught(ctx, cause);
         /**
          * 发生异常时删除缓存中对应的client的缓存

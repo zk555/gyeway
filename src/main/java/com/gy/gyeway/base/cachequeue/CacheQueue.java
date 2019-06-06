@@ -25,12 +25,12 @@ public class CacheQueue {
      */
     public static ConcurrentHashMap<String, Channel> masterChannelCache ;
     /**
-     * 轮询策略
+     * 轮询策略 ,CopyOnWrite容器也是一种读写分离的思想，读和写不同的容器
      */
     private static CopyOnWriteArrayList<Channel> roundCache ;
 
     /**
-     * Server4Terminel接收到消息之后 将消息存放到up2MasterQueue队列中
+     * Server2Terminel接收到消息之后 将消息存放到up2MasterQueue队列中
      */
     public static BlockingQueue<ChannelData> up2MasterQueue;
 

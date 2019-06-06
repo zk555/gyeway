@@ -24,23 +24,19 @@ public class MClient2Tmnl  implements DataTransfer{
         exService = Executors.newFixedThreadPool(poolSize,new ThreadFactoryImpl("msgTransWorker_Down_", false));
     }
 
-
-
     public void run() {
-
-
         for (int i=0 ; i < poolSize ; i++ ){
             exService.execute(new Runnable() {
-
                 @Override
                 public void run() {
                     while(true){
                         ChannelData channelData = null;
                         try {
-                            channelData = down2TmnlQueue.take();//获取从Server4Terminal发送过来的上行报文对象
+                            channelData = down2TmnlQueue.take();//获取从Server2Terminal发送过来的上行报文对象
                             if(channelData == null){
                                 continue;
                             }
+                            //获取终端的channel
                             Channel channel = ClientChannelCache.get(channelData.getIpAddress());//性能提升点
                             if(channel != null){
 
@@ -52,7 +48,6 @@ public class MClient2Tmnl  implements DataTransfer{
 //										System.out.println("Gate Down = "+StringUtils.encodeHex(car));
                                     channel.writeAndFlush(channelData);
                                 }
-
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
