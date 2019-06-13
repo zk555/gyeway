@@ -17,9 +17,6 @@ import java.util.concurrent.Executors;
 
 /**
  * 客户端
- * @author yangcheng
- * @date 2017年12月29日 
- * @version V1.0
  */
 public class moniTerminal {
 	static EventLoopGroup work=new NioEventLoopGroup();

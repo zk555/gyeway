@@ -19,7 +19,7 @@ public class ProtocalStrategyCache {
      */
     public static ConcurrentHashMap<String, String> protocalStrategyCache ;
     /**
-     * 网关规约服务缓存---用于规约服务控制--key=pId
+     * 网关规约服务缓存---用于规约服务控制--key=pId  (把启动的服务放到容器，以便后续操作如：close())
      */
     public static ConcurrentHashMap<String, Server2Terminal> protocalServerCache ;
     /**

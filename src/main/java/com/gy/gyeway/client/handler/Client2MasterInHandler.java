@@ -24,6 +24,12 @@ public class Client2MasterInHandler  extends SimpleChannelInboundHandler<Channel
             CacheQueue.down2TmnlQueue.put(channelData);
         }
     }
+
+    /**
+     * 缓存
+     * @param ctx
+     * @throws Exception
+     */
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);

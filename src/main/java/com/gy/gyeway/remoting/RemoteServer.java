@@ -57,7 +57,7 @@ public class RemoteServer {
 
 
         try {
-            ChannelFuture sync = this.bootstrap.bind().sync();
+            ChannelFuture sync = this.bootstrap.bind(10916).sync();
             InetSocketAddress addr = (InetSocketAddress) sync.channel().localAddress();
 //		this.port = addr.getPort();
         }

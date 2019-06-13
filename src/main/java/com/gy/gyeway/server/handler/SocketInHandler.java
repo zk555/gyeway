@@ -19,7 +19,7 @@ import java.util.List;
 @ChannelHandler.Sharable
 public class SocketInHandler  extends ChannelInboundHandlerAdapter {
     /**
-     * 接入网关后处理请求信息
+     * 终端接入网关后 ，缓存终端的地址
      * @param ctx
      * @throws Exception
      */
@@ -47,6 +47,12 @@ public class SocketInHandler  extends ChannelInboundHandlerAdapter {
         ClientChannelCache.removeOne(clientIpAddress);
     }
 
+    /**
+     * 缓存 终端发到server的数据
+     * @param ctx
+     * @param msg
+     * @throws Exception
+     */
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         try{

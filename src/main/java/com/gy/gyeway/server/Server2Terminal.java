@@ -89,6 +89,7 @@ public class Server2Terminal {
     public  void bindAddress(ServerBootstrap serverBootstrap){
         ChannelFuture channelFuture;
         try {
+            //缓存规则Id ,服务对象
             ProtocalStrategyCache.protocalServerCache.put(pId, this);
             channelFuture = serverBootstrap.bind(Integer.parseInt(serverPort)).sync();
             System.out.println("网关服务端已启动！！");

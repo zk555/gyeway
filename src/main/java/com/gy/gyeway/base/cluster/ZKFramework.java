@@ -49,7 +49,7 @@ public class ZKFramework {
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 10);
         cf = CuratorFrameworkFactory.builder()
                 .connectString(zkAddr)
-                .sessionTimeoutMs(6000)
+                .sessionTimeoutMs(15000)
                 .retryPolicy(retryPolicy)
                 .build();
         System.out.println("zk连接中。。。。。。");

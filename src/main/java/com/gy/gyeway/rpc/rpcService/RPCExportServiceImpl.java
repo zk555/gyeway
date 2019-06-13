@@ -45,17 +45,22 @@ public class RPCExportServiceImpl  implements RPCExportService{
         }
         String newStraPro = sb.toString();
         ProtocalStrategyCache.protocalStrategyCache.replace(pid, newStraPro.substring(0, newStraPro.length()-1));
-//		stopProtocalServiceByPid(pid);
-//		try {
-//			Thread.sleep(3000);
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-//		//3.启动服务
-//		startProtocalServiceByPid(pid);
+		stopProtocalServiceByPid(pid);
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		//3.启动服务
+		startProtocalServiceByPid(pid);
         return responseData;
     }
 
+    /**
+     * 暂停某个规约服务
+     * @param pid
+     * @return
+     */
     @Override
     public ResponseData delProtocalByPid(String pid) {
         ResponseData responseData = new ResponseData();
@@ -69,6 +74,11 @@ public class RPCExportServiceImpl  implements RPCExportService{
         return responseData;
     }
 
+    /**
+     * 启动规约思想：读取规则传到netty解码器后启动netty服务
+     * @param pid
+     * @return
+     */
     @Override
     public ResponseData startProtocalServiceByPid(String pid) {
         ResponseData responseData = new ResponseData();
@@ -99,9 +109,7 @@ public class RPCExportServiceImpl  implements RPCExportService{
                 },"gate2tmnlThread_pid_"+pid).start();
             }else{
                 //TODO 高级功能模块   自定义解析器实现
-
             }
-
         }
         return responseData;
     }
@@ -121,6 +129,11 @@ public class RPCExportServiceImpl  implements RPCExportService{
         return responseData;
     }
 
+    /**
+     * 获取所有规约
+     * @param onlyRunning
+     * @return
+     */
     @Override
     public ResponseData getAllProtocal(boolean onlyRunning) {
         ResponseData responseData = new ResponseData();
@@ -134,7 +147,6 @@ public class RPCExportServiceImpl  implements RPCExportService{
                 if(ProtocalStrategyCache.protocalServerCache.containsKey(pid)){
                     data.put(pid.toString(), ProtocalStrategyCache.protocalStrategyCache.get(pid));
                 }
-
             }
             list.add(data);
         }else{
@@ -145,6 +157,13 @@ public class RPCExportServiceImpl  implements RPCExportService{
     }
 
 
+    /**
+     * 新增加规约
+     * @param pid
+     * @param str 共8位 =pId+ isBigEndian+ beginHexVal+ lengthFieldOffset+ lengthFieldLength+ isDataLenthIncludeLenthFieldLenth+ exceptDataLenth+ port
+     * @param startAtOnce  是否立即启动服务
+     * @return
+     */
     @Override
     public ResponseData addNewProtocal(String pid,List<Integer> str,boolean startAtOnce) {
         ResponseData responseData = new ResponseData();
@@ -170,28 +189,6 @@ public class RPCExportServiceImpl  implements RPCExportService{
         }
         return responseData;
     }
-
-//    @Override
-//    public ResponseData addStrategyByAppointParseMethod(String pid,List<Integer> strategy ,String Content) {
-//        ResponseData responseData = new ResponseData();
-//        //BasicDir
-//        String className = null;
-//        try {
-//            className = makeClass(pid , Content);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            responseData.setErroInfo(e);
-//            responseData.setReturnCode(500);
-//            return responseData;
-//        }
-//        if(className != null){
-//            ProtocalStrategyCache.protocalStrategyClassUrlCache.put(pid, className);
-//            addNewProtocal(pid,strategy,false);
-//        }
-//        return responseData;
-//    }
-
-
     /**
      * 判断当前规约是否指定了自定义长度域解析方法
      * @param pid
@@ -202,23 +199,4 @@ public class RPCExportServiceImpl  implements RPCExportService{
         return str != null;
     }
 
-
-//    /**
-//     * 创建指定对象
-//     * @return 全类名
-//     * @throws Exception
-//     */
-//    public static String makeClass(String pid , String methodContent) throws Exception{
-//        ClassPool pool = ClassPool.getDefault();
-//        String newClassName = "iotGate.strategy.Strategy"+pid;
-//        CtClass clazz=pool.get("gate.codec.other.LengthParserImpl");
-//        clazz.setName(newClassName);
-//
-//        CtMethod method = clazz.getDeclaredMethod("parseLength", new CtClass[]{pool.get("io.netty.buffer.ByteBuf"),pool.get("java.util.ArrayList")});
-//        //在方法体之前增加输出
-//        method.insertAfter("System.out.println(\"start....\"); "+ methodContent );
-//
-//        clazz.writeFile(System.getProperty("BasicDir"));
-//        return newClassName;
-//    }
 }

@@ -34,14 +34,7 @@ public class moniMasterHandler extends ChannelInboundHandlerAdapter {
 				//初始化开始时间
 				CountHelper.masterRecieveStartTime=System.currentTimeMillis();
 			}
-			if(pos == CountHelper.ThreadNum ){
-				//计算结束时间
-				System.out.println("接收数据总花费时间为:"+(System.currentTimeMillis()-CountHelper.masterRecieveStartTime)+"毫秒");
-			}
-			if(pos == 8000 ){
-				//计算结束时间
-				System.out.println("接收数据总花费时间为:"+(System.currentTimeMillis()-CountHelper.masterRecieveStartTime)+"毫秒");
-			}
+			System.out.println("接收数据总花费时间为:"+(System.currentTimeMillis()-CountHelper.masterRecieveStartTime)+"毫秒");
 			/**
 			 * 通过channel写出数据  会直接执行handler链中最后一个handler开始逆向执行
 			 */
